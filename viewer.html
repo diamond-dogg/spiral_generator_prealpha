@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Spiral Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        .fullscreen {
+            position: absolute;
+            top: calc(0.6vw);
+            right: calc(1.5vw);
+            width: calc(0.5vw);
+            height: calc(0.5vw);
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.0);
+            border: none;
+            outline: none;
+            font-family: 'Material Icons';
+            font-size: calc(1.5vw);
+            color: rgba(255,255,255,0.2);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <script>
+        function getUrlParams() {
+            let paramString = window.location.search.substr(1),
+                params = {},
+                paramList = paramString.split("&");
+
+            for (let i = 0; i < paramList.length; i++) {
+                let param = paramList[i].split("=");
+                params[param[0]] = decodeURIComponent(param[1]);
+            }
+
+            return params;
+        }
+
+        // Get URL parameters
+        const urlParams = getUrlParams();
+
+        // Initialize JavaScript variables with the values from the URL parameters
+        const globalSpeed = parseFloat(urlParams.globalSpeed);
+        const freq = parseFloat(urlParams.freq);
+        const baseSpeed = parseFloat(urlParams.baseSpeed);
+        const weirdWarp = parseFloat(urlParams.weirdWarp);
+        const lineExp = parseFloat(urlParams.lineExp);
+        const noiseAmp = parseFloat(urlParams.noiseAmp);
+        const noiseFreq = parseFloat(urlParams.noiseFreq);
+        const noiseSpeed = parseFloat(urlParams.noiseSpeed);
+        const pulseAmp = parseFloat(urlParams.pulseAmp);
+        const pulseFreq = parseFloat(urlParams.pulseFreq);
+        const pulseSpeed = parseFloat(urlParams.pulseSpeed);
+        const pulseExp = parseFloat(urlParams.pulseExp);
+        const hue = parseFloat(urlParams.hue);
+        const sat = parseFloat(urlParams.sat);
+        const val = parseFloat(urlParams.val);
+        const motionBlur = parseFloat(urlParams.motionBlur);
+        const superSample = parseFloat(urlParams.superSample);
+    </script>
+    <canvas id="myCanvas"></canvas>
+    <button class="fullscreen" onclick="toggleFullScreen()">fullscreen</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="spiral.js"></script>
+    <script>
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
