@@ -218,9 +218,9 @@ scene.add(mesh);
 let prevTime = 0;
 let targetFPS = 60;
 let scaleFactor = 1; // Initialize the scaling factor to 1
-let minScaleFactor = 0.25; // Minimum scaling factor to prevent extremely low resolution
+let minScaleFactor = 0.5; // Minimum scaling factor to prevent extremely low resolution
 let frameCount = 0; // Count number of frames in sample period
-let samplePeriod = 1; // Seconds per sample period
+let samplePeriod = 0.5; // Seconds per sample period
 let sumFPS = 0; // Sum of FPS values in sample period
 
 function resizeRendererToDisplaySize(renderer) {
