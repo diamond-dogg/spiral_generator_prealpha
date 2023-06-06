@@ -146,20 +146,13 @@ const fragmentShader = `
 
 
 // function to handle slider and color wheel values change
-function handleValueChange(elementId, uniformName, isColorWheel = false) {
+function handleValueChange(elementId, uniformName) {
     const element = document.getElementById(elementId);
     element.addEventListener('input', () => {
-        if (isColorWheel) {
-            const color = element.value;
-            // Convert the color string to a THREE.Color object
-            const threeColor = new THREE.Color(color);
-            // Set the uniform value with the color object
-            uniforms[uniformName].value.set(threeColor.r, threeColor.g, threeColor.b);
-        } else {
-            uniforms[uniformName].value = parseFloat(element.value);
-        }
+        uniforms[uniformName].value = parseFloat(element.value);
     });
 }
+
 
 handleValueChange('globalSpeed', 'GLOBAL_SPEED');
 handleValueChange('freq', 'FREQ');
@@ -178,6 +171,7 @@ handleValueChange('val', 'VAL');
 handleValueChange('lineExp', 'LINE_EXP');
 handleValueChange('motionBlur', 'MOTION_BLUR');
 handleValueChange('superSample', 'SUPERSAMPLING_FACTOR');
+
 
 const uniforms = {
     iResolution: { value: new THREE.Vector2(canvas.width, canvas.height) },
@@ -217,10 +211,15 @@ const material = new THREE.ShaderMaterial({
 const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
+let prevTime = 0;
+let targetFPS = 60;
+let scaleFactor = 1; // Initialize the scaling factor to 1
+let minScaleFactor = 0.25; // Minimum scaling factor to prevent extremely low resolution
+
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
+    const width = Math.floor(canvas.clientWidth * scaleFactor);
+    const height = Math.floor(canvas.clientHeight * scaleFactor);
     const needResize = canvas.width !== width || canvas.height !== height;
     if (needResize) {
         renderer.setSize(width, height, false);
@@ -232,6 +231,18 @@ function resizeRendererToDisplaySize(renderer) {
 function render(time) {
     time *= 0.001;
     uniforms.iTime.value = time;
+
+    // Code for FPS display
+    const deltaTime = time - prevTime;
+    const FPS = 1 / deltaTime;
+    prevTime = time;
+
+    // Adaptive resolution scaling
+    if (FPS < targetFPS) {
+        scaleFactor = Math.max(scaleFactor - deltaTime, minScaleFactor); // Decrease scaling factor as FPS drops, down to a minimum value
+    } else {
+        scaleFactor = Math.min(scaleFactor + deltaTime, 1); // Increase scaling factor as FPS rises, up to 1 (default)
+    }
 
     if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
