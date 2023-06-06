@@ -45,10 +45,11 @@
 		<div id="spacing"></div>
         <div><input type="range" id="freq" min="0" max="60" step="0.1" value="20"><label for="freq">Base Frequency</label></div>
         <div><input type="range" id="baseSpeed" min="0" max="10" step="0.1" value="5"><label for="baseSpeed">Base Speed</label></div>
-        <div><input type="range" id="weirdWarp" min="0" max="20" step="1" value="5"><label for="weirdWarp">Weird Warp</label></div>
+        <div><input type="range" id="dirFlips" min="0" max="20" step="1" value="5"><label for="dirFlips">Direction Flips</label></div>
         <div><input type="range" id="lineExp" min="0" max="5" step="0.01" value="3.0"><label for="lineExp">Line Feather</label></div>
 		<div id="spacing"></div>
-        <div><input type="range" id="noiseAmp" min="0" max="5" step="0.01" value="0"><label for="noiseAmp">Noise Amplitude</label></div>
+        <div><input type="range" id="noiseAngAmp" min="0" max="5" step="0.01" value="0"><label for="noiseAngAmp">Noise Amplitude (angle)</label></div>
+		<div><input type="range" id="noiseRadAmp" min="0" max="0.2" step="0.01" value="0"><label for="noiseRadAmp">Noise Amplitude (radius)</label></div>
         <div><input type="range" id="noiseFreq" min="0" max="20" step="0.1" value="6"><label for="noiseFreq">Noise Frequency</label></div>
         <div><input type="range" id="noiseSpeed" min="-1" max="1" step="0.01" value="-0.2"><label for="noiseSpeed">Noise Rotation Speed</label></div>
 		<div id="spacing"></div>
@@ -106,7 +107,8 @@
 				"baseSpeed",
 				"weirdWarp",
 				"lineExp",
-				"noiseAmp",
+				"noiseAngAmp",
+				"noiseRadAmp",
 				"noiseFreq",
 				"noiseSpeed",
 				"pulseAmp",
