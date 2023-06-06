@@ -44,28 +44,6 @@
 		#spacing {
 			padding: 20px;
 		}
-		.tooltip {
-            position: relative;
-        }
-        .tooltip::after {
-            content: attr(title);
-            position: absolute;
-            bottom: calc(100% + 10px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            font-size: 14px;
-            padding: 5px;
-            border-radius: 3px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        .tooltip:hover::after {
-            opacity: 1;
-        }
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
@@ -97,7 +75,6 @@
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
 		<div id="spacing"></div>
 		<div><button id="generateBtn">Generate Link</button></div>
-		<div><input type="text" id="generatedUrl" readonly></div>
     </div>
     <button class="fullscreen" onclick="toggleFullScreen()">fullscreen</button>
     <canvas id="myCanvas"></canvas>
@@ -149,25 +126,20 @@
 		}
 	</script>
 	<script>
-		document.getElementById('generateBtn').addEventListener('click', function() {
-		  const generatedUrl = generateURL();
-		  const generatedUrlField = document.getElementById('generatedUrl');
-		  
-		  // Copy URL to clipboard
-		  navigator.clipboard.writeText(generatedUrl).then(function() {
-			// Show tooltip
-			generatedUrlField.setAttribute('title', 'Copied to clipboard');
-			generatedUrlField.classList.add('tooltip');
-			setTimeout(function() {
-			  // Hide tooltip after a few seconds
-			  generatedUrlField.removeAttribute('title');
-			  generatedUrlField.classList.remove('tooltip');
-			}, 3000);
-		  });
-		  
-		  // Set generatedUrl textbox value
-		  generatedUrlField.value = generatedUrl;
+	  const copyButton = document.getElementById('generateBtn');
+	  copyButton.addEventListener('click', function() {
+		const generatedUrl = generateURL();
+		const generatedUrlField = document.getElementById('generatedUrl');
+
+		// Copy URL to clipboard
+		navigator.clipboard.writeText(generatedUrl).then(function() {
+		  // Change button text to "Link Copied" for 1 second
+		  copyButton.textContent = "Link Copied";
+		  setTimeout(() => {
+			copyButton.textContent = "Generate Link";
+		  }, 1000);
 		});
+	  });
 	</script>
 </body>
 </html>
