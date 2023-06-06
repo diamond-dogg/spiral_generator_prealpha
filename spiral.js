@@ -14,6 +14,7 @@ const fragmentShader = `
     uniform float FREQ;
     uniform float BASE_SPEED;
 	uniform int DIR_FLIPS;
+	uniform float CONCENTRIC;
 
     uniform float NOISE_FREQ;
     uniform float NOISE_SPEED;
@@ -64,20 +65,12 @@ const fragmentShader = `
 	}
 	
 	// custom power function, because uniforms break pow() for some god-forsaken reason
-	float customPow(float base, float exponent) {
-		if (base <= 0.0) {
-			return 0.0;
-		} else {
-			float logValue = 1.0 / log(2.0);
-			float positiveExponentResult = exp2(logValue * log(base) * abs(exponent));
-
-			if (exponent < 0.0) {
-				return 1.0 / positiveExponentResult;
-			} else {
-				return positiveExponentResult;
-			}
-		}
-	}
+    float customPow(float base, float exponent) {
+        if (base <= 0.0) {
+            return 0.0;
+        }
+        return exp2(exponent * log2(base));
+    }
 
 	// main fragment shader
 	vec3 primaryShader( in vec2 fragCoord, in float inTime )
@@ -98,6 +91,7 @@ const fragmentShader = `
 		polar.x += displace.y * NOISE_RAD_AMP; // darken spiral with nosie (polar.x affects brightness)
 			
 		// Spiral
+		polar.y += tan(polar.x * CONCENTRIC); // add concentric circles somehow
 		polar.y += polar.x * FREQ + globalTime * BASE_SPEED; // twist the uv space around the origin (basis of the spiral)
 		float pulse = sin(polar.x * PULSE_FREQ + globalTime * PULSE_SPEED); // create pulse factor
 		polar.y -= customPow(pulse, PULSE_EXP) * PULSE_AMP; // contract/expand based on pulse factor
@@ -111,7 +105,7 @@ const fragmentShader = `
 		float bright = 1.0 - abs(p.y); // make base linear value
 		bright += abs(p.x) * -0.2; // make it look nice
 		bright *= 1.8; // make it look nice
-		bright *= pow(clamp(p.x, 0.0, 0.5), 0.5); // cut left half out
+		bright *= customPow(clamp(p.x, 0.0, 0.5), 0.5); // cut left half out
 		bright = customPow(bright, LINE_EXP); // exponent (sharpness)
 		bright = clamp(bright, 0.0, 1.0); // clamp final brightness
 		
@@ -175,6 +169,7 @@ handleValueChange('hue', 'HUE');
 handleValueChange('sat', 'SAT');
 handleValueChange('val', 'VAL');
 handleValueChange('lineExp', 'LINE_EXP');
+handleValueChange('concentric', 'CONCENTRIC');
 handleValueChange('motionBlur', 'MOTION_BLUR');
 handleValueChange('superSample', 'SUPERSAMPLING_FACTOR');
 
@@ -196,6 +191,7 @@ const uniforms = {
     PULSE_EXP: { value: 2.0 },
     PULSE_AMP: { value: 2.0 },
     LINE_EXP: { value: 3.0 },
+    CONCENTRIC: { value: 0.0 },
 	HUE: { value: 0.7 },
 	SAT: { value: 0.8 },
 	VAL: { value: 1.5 },
@@ -220,9 +216,9 @@ const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
 let prevTime = 0;
-let targetFPS = 50;
+let targetFPS = 55;
 let scaleFactor = 1; // Initialize the scaling factor to 1
-let minScaleFactor = 0.5; // Minimum scaling factor to prevent extremely low resolution
+let minScaleFactor = 1; // Minimum scaling factor to prevent extremely low resolution               CHANGE BACK TO 0.5
 let frameCount = 0; // Count number of frames in sample period
 let samplePeriod = 3; // Seconds per sample period
 let sumFPS = 0; // Sum of FPS values in sample period
@@ -264,7 +260,7 @@ function render(time) {
     }
 
     // Display FPS and average FPS in a HTML element
-    document.getElementById("fps").innerHTML = "FPS: " + FPS.toFixed(2) + " | Average FPS: " + averageFPS.toFixed(2);
+    document.getElementById("fps").innerHTML = "Average FPS: " + Math.round(averageFPS);
 
     if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
