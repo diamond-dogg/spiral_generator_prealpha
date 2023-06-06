@@ -212,9 +212,9 @@ const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
 let prevTime = 0;
-let targetFPS = 60;
+let targetFPS = 50;
 let scaleFactor = 1; // Initialize the scaling factor to 1
-let minScaleFactor = 0.25; // Minimum scaling factor to prevent extremely low resolution
+let minScaleFactor = 0.5; // Minimum scaling factor to prevent extremely low resolution
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
