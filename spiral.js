@@ -9,6 +9,7 @@ const fragmentShader = `
     uniform float iTime;
 
     uniform float GLOBAL_SPEED;
+	uniform float GLOBAL_SCALE;
 
     uniform float FREQ;
     uniform float BASE_SPEED;
@@ -85,6 +86,7 @@ const fragmentShader = `
 		
 		// zero-centered uv space
 		vec2 p = vec2((fragCoord.x / iResolution.x - 0.5) * (iResolution.x / min(iResolution.x, iResolution.y)) * 2.0, (fragCoord.y / iResolution.y - 0.5) * (iResolution.y / min(iResolution.x, iResolution.y)) * 2.0);
+		p /= GLOBAL_SCALE;
 		
 		// get polar coordinates
 		vec2 polar = c2p(p);
@@ -157,6 +159,7 @@ function handleValueChange(elementId, uniformName) {
 
 
 handleValueChange('globalSpeed', 'GLOBAL_SPEED');
+handleValueChange('globalScale', 'GLOBAL_SCALE');
 handleValueChange('freq', 'FREQ');
 handleValueChange('baseSpeed', 'BASE_SPEED');
 handleValueChange('dirFlips', 'DIR_FLIPS');
@@ -180,6 +183,7 @@ const uniforms = {
     iResolution: { value: new THREE.Vector2(canvas.width, canvas.height) },
     iTime: { value: 0 },
     GLOBAL_SPEED: { value: 1.0 },
+	GLOBAL_SCALE: { value: 1.0 },
     FREQ: { value: 20.0 },
     BASE_SPEED: { value: 5.0 },
     DIR_FLIPS: { value: 5 },
@@ -216,12 +220,13 @@ const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
 let prevTime = 0;
-let targetFPS = 60;
+let targetFPS = 50;
 let scaleFactor = 1; // Initialize the scaling factor to 1
 let minScaleFactor = 0.5; // Minimum scaling factor to prevent extremely low resolution
 let frameCount = 0; // Count number of frames in sample period
-let samplePeriod = 0.5; // Seconds per sample period
+let samplePeriod = 3; // Seconds per sample period
 let sumFPS = 0; // Sum of FPS values in sample period
+let resolutionAdapted = false; // To check if resolution has been adapted
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -247,20 +252,19 @@ function render(time) {
     frameCount += 1;
     
     const averageFPS = sumFPS / frameCount;
-    if (frameCount >= targetFPS * samplePeriod) {
+    
+    if (!resolutionAdapted && frameCount >= targetFPS * samplePeriod) {
+        if (averageFPS < targetFPS) {
+            scaleFactor = minScaleFactor;
+            resolutionAdapted = true;
+        }
+        
         frameCount = 0;
         sumFPS = 0;
     }
 
     // Display FPS and average FPS in a HTML element
     document.getElementById("fps").innerHTML = "FPS: " + FPS.toFixed(2) + " | Average FPS: " + averageFPS.toFixed(2);
-
-    // Adaptive resolution scaling using averageFPS
-    if (averageFPS < targetFPS) {
-        scaleFactor = Math.max(scaleFactor - deltaTime, minScaleFactor); // Decrease scaling factor as FPS drops, down to a minimum value
-    } else {
-        scaleFactor = Math.min(scaleFactor + deltaTime, 1); // Increase scaling factor as FPS rises, up to 1 (default)
-    }
 
     if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
