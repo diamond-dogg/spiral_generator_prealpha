@@ -12,11 +12,12 @@ const fragmentShader = `
 
     uniform float FREQ;
     uniform float BASE_SPEED;
-	uniform int WEIRD_WARP;
+	uniform int DIR_FLIPS;
 
     uniform float NOISE_FREQ;
     uniform float NOISE_SPEED;
-    uniform float NOISE_AMP;
+    uniform float NOISE_ANG_AMP;
+	uniform float NOISE_RAD_AMP;
 
     uniform float PULSE_FREQ;
     uniform float PULSE_SPEED;
@@ -91,13 +92,14 @@ const fragmentShader = `
 		// noise
 		vec2 noiseSampleP = p2c(vec2(polar.x, polar.y + globalTime * NOISE_SPEED)); // rotate the uv-space the noise will be sampling from (to rotate the noise)
 		vec2 displace = vec2(noise(noiseSampleP * NOISE_FREQ)); // calculate noise
-		polar.y += displace.x * NOISE_AMP; // displace spiral with noise (polar.y affects displacement, polar.x affects brightness, don't ask me why)
+		polar.y += displace.x * NOISE_ANG_AMP; // displace spiral with noise (polar.y affects displacement)
+		polar.x += displace.y * NOISE_RAD_AMP; // darken spiral with nosie (polar.x affects brightness)
 			
 		// Spiral
 		polar.y += polar.x * FREQ + globalTime * BASE_SPEED; // twist the uv space around the origin (basis of the spiral)
 		float pulse = sin(polar.x * PULSE_FREQ + globalTime * PULSE_SPEED); // create pulse factor
 		polar.y -= customPow(pulse, PULSE_EXP) * PULSE_AMP; // contract/expand based on pulse factor
-		polar.y += (atan(p.y,p.x) - pulse*5.0) * float(WEIRD_WARP); // cool and weird effect (happy accident)
+		polar.y += (atan(p.y,p.x) - pulse*5.0) * float(DIR_FLIPS); // cool and weird effect (happy accident)
 		
 		// convert spiralized polar coords back to cartesian
 		p = p2c(polar);
@@ -157,10 +159,11 @@ function handleValueChange(elementId, uniformName) {
 handleValueChange('globalSpeed', 'GLOBAL_SPEED');
 handleValueChange('freq', 'FREQ');
 handleValueChange('baseSpeed', 'BASE_SPEED');
-handleValueChange('weirdWarp', 'WEIRD_WARP');
+handleValueChange('dirFlips', 'DIR_FLIPS');
 handleValueChange('noiseFreq', 'NOISE_FREQ');
 handleValueChange('noiseSpeed', 'NOISE_SPEED');
-handleValueChange('noiseAmp', 'NOISE_AMP');
+handleValueChange('noiseAngAmp', 'NOISE_ANG_AMP');
+handleValueChange('noiseRadAmp', 'NOISE_RAD_AMP');
 handleValueChange('pulseFreq', 'PULSE_FREQ');
 handleValueChange('pulseSpeed', 'PULSE_SPEED');
 handleValueChange('pulseExp', 'PULSE_EXP');
@@ -179,10 +182,11 @@ const uniforms = {
     GLOBAL_SPEED: { value: 1.0 },
     FREQ: { value: 20.0 },
     BASE_SPEED: { value: 5.0 },
-    WEIRD_WARP: { value: 5 },
+    DIR_FLIPS: { value: 5 },
     NOISE_FREQ: { value: 6.0 },
     NOISE_SPEED: { value: -0.2 },
-    NOISE_AMP: { value: 0.0 },
+    NOISE_ANG_AMP: { value: 0.0 },
+    NOISE_RAD_AMP: { value: 0.0 },
     PULSE_FREQ: { value: 10.6 },
     PULSE_SPEED: { value: 1.5 },
     PULSE_EXP: { value: 2.0 },
@@ -212,9 +216,12 @@ const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
 let prevTime = 0;
-let targetFPS = 50;
+let targetFPS = 60;
 let scaleFactor = 1; // Initialize the scaling factor to 1
-let minScaleFactor = 0.5; // Minimum scaling factor to prevent extremely low resolution
+let minScaleFactor = 0.25; // Minimum scaling factor to prevent extremely low resolution
+let frameCount = 0; // Count number of frames in sample period
+let samplePeriod = 0.1; // Seconds per sample period
+let sumFPS = 0; // Sum of FPS values in sample period
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -236,12 +243,20 @@ function render(time) {
     const deltaTime = time - prevTime;
     const FPS = 1 / deltaTime;
     prevTime = time;
+    sumFPS += FPS;
+    frameCount += 1;
     
-    // Display FPS in a HTML element
-    document.getElementById("fps").innerHTML = "FPS: " + FPS.toFixed(2);
+    const averageFPS = sumFPS / frameCount;
+    if (frameCount >= targetFPS * samplePeriod) {
+        frameCount = 0;
+        sumFPS = 0;
+    }
 
-    // Adaptive resolution scaling
-    if (FPS < targetFPS) {
+    // Display FPS and average FPS in a HTML element
+    document.getElementById("fps").innerHTML = "FPS: " + FPS.toFixed(2) + " | Average FPS: " + averageFPS.toFixed(2);
+
+    // Adaptive resolution scaling using averageFPS
+    if (averageFPS < targetFPS) {
         scaleFactor = Math.max(scaleFactor - deltaTime, minScaleFactor); // Decrease scaling factor as FPS drops, down to a minimum value
     } else {
         scaleFactor = Math.min(scaleFactor + deltaTime, 1); // Increase scaling factor as FPS rises, up to 1 (default)
