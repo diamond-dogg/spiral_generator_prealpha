@@ -42,6 +42,7 @@
 <body onload="resetSliders()">
     <div id="controls">
         <div><input type="range" id="globalSpeed" min="0" max="5" step="0.01" value="1"><label for="globalSpeed">Global Speed</label></div>
+		<div><input type="range" id="globalScale" min="0.1" max="5" step="0.01" value="1"><label for="globalScale">Global Scale</label></div>
 		<div id="spacing"></div>
         <div><input type="range" id="freq" min="0" max="60" step="0.1" value="20"><label for="freq">Base Frequency</label></div>
         <div><input type="range" id="baseSpeed" min="-10" max="10" step="0.1" value="5"><label for="baseSpeed">Base Speed</label></div>
@@ -108,6 +109,7 @@
 		function resetSliders() {
 			const sliders = [
 				"globalSpeed",
+				"globalScale",
 				"freq",
 				"baseSpeed",
 				"weirdWarp",
