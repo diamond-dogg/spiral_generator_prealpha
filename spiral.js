@@ -236,6 +236,9 @@ function render(time) {
     const deltaTime = time - prevTime;
     const FPS = 1 / deltaTime;
     prevTime = time;
+    
+    // Display FPS in a HTML element
+    document.getElementById("fps").innerHTML = "FPS: " + FPS.toFixed(2);
 
     // Adaptive resolution scaling
     if (FPS < targetFPS) {
