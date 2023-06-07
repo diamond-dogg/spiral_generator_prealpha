@@ -4,8 +4,6 @@ const renderer = new THREE.WebGLRenderer({ canvas });
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 const scene = new THREE.Scene();
 const plane = new THREE.PlaneBufferGeometry(2, 2);
-
-// glsl shader
 const fragmentShader = `	
     uniform vec2 iResolution;
     uniform float iTime;
@@ -93,7 +91,7 @@ const fragmentShader = `
 		polar.x += displace.y * NOISE_RAD_AMP; // darken spiral with nosie (polar.x affects brightness)
 			
 		// Spiral
-		polar.y += tan(polar.x * CONCENTRIC); // add concentric circles somehow
+		polar.y += tan(polar.x * CONCENTRIC); // add concentric circles
 		polar.y += polar.x * FREQ + globalTime * BASE_SPEED; // twist the uv space around the origin (basis of the spiral)
 		float pulse = sin(polar.x * PULSE_FREQ + globalTime * PULSE_SPEED); // create pulse factor
 		polar.y -= customPow(pulse, PULSE_EXP) * PULSE_AMP; // contract/expand based on pulse factor
