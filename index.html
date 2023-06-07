@@ -11,12 +11,12 @@
 			background-color: black;
 		}
 		button {
-		  background-color: rgba(0, 0, 0, 0.5);
-		  color: rgba(255, 255, 255, 0.5);
-		  border-radius: 0;
-		  border: none;
-		  padding: calc(0.5vw) calc(1vw);
-		  font-size: calc(0.8vw);
+			background-color: rgba(0, 0, 0, 0.5);
+			color: rgba(255, 255, 255, 0.5);
+			border-radius: 0;
+			border: none;
+			padding: calc(0.5vw) calc(1vw);
+			font-size: calc(0.8vw);
 		}
 		canvas {
 			display: block;
@@ -46,7 +46,8 @@
 		#spacing {
 			padding: calc(0.5vw);
 		}
-		/*
+		
+		/*                            commented all of this
         .zero-centered {
             position: relative;
             display: block;
@@ -66,13 +67,64 @@
             margin: 0;
         }
 		*/
-	   input[type="range"] {
-		  font-size: calc(0.8vw);
-	   }
+		
+	    input[type="range"] {
+			font-size: calc(0.8vw);
+	    }
+		
+		
+		.warning-modal-full-page {
+			background-color: rgba(0, 0, 0, 1);
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 99999999;
+		}
+		
+		.warning-modal {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: #222;
+			color: white;
+			padding: 20px;
+			max-width: 80%;
+			box-sizing: border-box;
+			text-align: center;
+			z-index: 99999999;
+		}
+
+		.warning-modal h1 {
+			margin-top: 0;
+		}
+
+		.warning-modal p {
+			margin-top: 10px;
+		}
+
+		.warning-modal button {
+			background-color: #ff7f7f; color: black; padding: 10px 20px;
+			font-size: 1.2em; border: none; cursor: pointer;
+		}
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body onload="resetSliders()">
+	<div class="warning-modal-full-page" id="warningModal-fullPage">
+		<div class="warning-modal">
+			<h1>Seizure Warning</h1>
+			<p>This website contains flashing images that might trigger seizures for people with photosensitive epilepsy.</p>
+			<p>If you have a history of epilepsy or seizures, please avoid this site like the plague.</p>
+			<button id="continueButton" onclick="hideWarning()">Continue</button>
+		</div>
+	</div>
+	
 	<div id="controls">
 		<div class="zero-centered">
 			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1">
@@ -138,6 +190,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="spiral.js"></script>
     <script>
+	    function hideWarning() {
+			document.getElementById("warningModal-fullPage").style.display = "none";
+		}
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
