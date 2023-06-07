@@ -56,7 +56,7 @@ canvas {
 	position: absolute;
 	right: 0;
 	width: 20vh;
-	height: 50%;
+	height: 50vh;
 	resize: none;
 	font-size: calc(0.8vw);
 }
