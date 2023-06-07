@@ -2,206 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Spiral Viewer</title>
-    <style>
-		body {
-			margin: 0;
-			padding: 0;
-			overflow: hidden;
-			background-color: black;
-		}
-		button:hover {
-			background-color: rgba(0,0,0,0.75);
-			color: rgba(255, 255, 255, 0.75);
-		}
-
-		button {
-			background-color: rgba(0, 0, 0, 0.5);
-			color: rgba(255, 255, 255, 0.5);
-			border-radius: 0;
-			border: none;
-			padding: calc(0.5vw) calc(1vw);
-			font-size: calc(0.8vw);
-		}
-		canvas {
-			display: block;
-			width: 100vw;
-			height: 100vh;
-		}
-		.fullscreen {
-			position: absolute;
-			top: calc(0.6vw);
-			right: calc(1.5vw);
-			width: calc(0.5vw);
-			height: calc(0.5vw);
-			cursor: pointer;
-			background: rgba(255, 255, 255, 0.0);
-			border: none;
-			outline: none;
-			font-family: 'Material Icons';
-			font-size: calc(1.5vw);
-			color: rgba(255,255,255,0.2);
-		}
-		#controls {
-			background-color: rgba(0,0,0,0.5);
-			padding: 1vw;
-			position: absolute;
-			display: none;
-			color: rgba(255,255,255,0.5);
-			font-size: calc(0.8vw);
-		}
-		#spacing {
-			padding: calc(0.5vw);
-		}
-		
-	    input[type="range"] {
-			font-size: calc(0.8vw);
-	    }
-		
-		
-		.slider {
-			-webkit-appearance: none;
-			width: 10vw;
-			height: 0.25vw; /* relative to window size */
-			background: #d3d3d3;
-			outline: none;
-			opacity: 0.7;
-			-webkit-transition: .2s;
-			transition: opacity .2s;
-		}
-
-		.slider:hover {
-			opacity: 1;
-		}
-
-		.slider::-webkit-slider-thumb {
-			-webkit-appearance: none;
-			appearance: none;
-			width: 0.5vw; /* relative to window size */
-			height: 0.5vw; /* relative to window size */
-			background: #3d5c91;
-			cursor: pointer;
-		}
-
-		.slider::-moz-range-thumb {
-			width: 0.5vw; /* relative to window size */
-			height: 0.5vw; /* relative to window size */
-			background: #3d5c91;
-			cursor: pointer;
-		}
-		
-		
-		
-		
-		.slider-zeroCentered {
-			-webkit-appearance: none;
-			width: 10vw;
-			height: 0.25vw; /* relative to window size */
-			background: #d3d3d3;
-			outline: none;
-			opacity: 0.7;
-			-webkit-transition: .2s;
-			transition: opacity .2s;
-		}
-
-		.slider-zeroCentered:hover {
-			opacity: 1;
-		}
-
-		.slider-zeroCentered::-webkit-slider-thumb {
-			-webkit-appearance: none;
-			appearance: none;
-			width: 0.5vw; /* relative to window size */
-			height: 0.5vw; /* relative to window size */
-			background: #3d5c91;
-			cursor: pointer;
-		}
-
-		.slider-zeroCentered::-moz-range-thumb {
-			width: 0.5vw; /* relative to window size */
-			height: 0.5vw; /* relative to window size */
-			background: #3d5c91;
-			cursor: pointer;
-		}
-		
-		
-		
-		
-		.slider-zeroCentered::-webkit-slider-runnable-track {
-			height: 0.25vw;
-			background: linear-gradient(to right, transparent 49%, black 49%, black 51%, transparent 51%),
-						linear-gradient(to bottom, #d3d3d3, #d3d3d3);
-			background-size: 100% 100%, 100% 100%;
-			background-position: center center, left center;
-			background-repeat: no-repeat;
-		}
-
-		.slider-zeroCentered::-moz-range-track {
-			height: 0.25vw;
-			background: linear-gradient(to right, transparent 49%, black 49%, black 51%, transparent 51%),
-						linear-gradient(to bottom, #d3d3d3, #d3d3d3);
-			background-size: 100% 100%, 100% 100%;
-			background-position: center center, left center;
-			background-repeat: no-repeat;
-		}
-		
-		
-		
-		
-		
-		
-		
-		.warning-modal-full-page {
-			background-color: rgba(0, 0, 0, 1);
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			z-index: 99999999;
-		}
-		
-		.warning-modal {
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			background-color: #222;
-			color: white;
-			padding: 20px;
-			max-width: 80%;
-			box-sizing: border-box;
-			text-align: center;
-			z-index: 99999999;
-		}
-
-		.warning-modal h1 {
-			margin-top: 0;
-		}
-
-		.warning-modal p {
-			margin-top: 10px;
-		}
-
-		.warning-modal button {
-			background-color: #e66363;
-			color: black;
-			padding: 10px 20px;
-			font-size: 1.2em;
-			border: none;
-			cursor: pointer;
-		}
-
-		.warning-modal button:hover {
-			background-color: #ff7f7f;
-		}
-    </style>
+    <title>Spiral Editor</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css">
+	<style>
+		#hypnoText-controls {
+			display: none;
+		}
+		#spiral-controls {
+			display: none;
+		}
+	</style>
 </head>
-<body onload="resetSliders()">
+<body onload="resetInputs()">
 	<div class="warning-modal-full-page" id="warningModal-fullPage">
 		<div class="warning-modal">
 			<h1>Seizure Warning</h1>
@@ -211,7 +25,22 @@
 		</div>
 	</div>
 	
-	<div id="controls">
+	
+	<div id="hypnoText-container"></div>
+	<div id="hypnoText-controls">
+        <textarea id="hypnoText-input" placeholder="Enter subliminals here"></textarea>
+        <div><input id="hypnoText-delay-input" type="number" min="0" step="0.1" value="1.0"><label style="font-size: 1vh"> Delay (seconds)</label></div>
+        <div><input id="hypnoText-space-input" type="number" min="0" step="0.1" value="0.0"><label style="font-size: 1vh"> Spacing (seconds)</label></div>
+		<input id="hypnoText-color-picker" type="text" value="#ffffff84" data-coloris>
+        <button id="hypnoText-randomize-button" type="button_toggle">Randomize Order</button>
+    </div>
+	
+	
+	
+	
+	
+	
+	<div id="spiral-controls">
 		<div class="zero-centered">
 			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1" class="slider-zeroCentered">
 			<button onclick="setToZero('globalSpeed')">Φ</button>
@@ -231,7 +60,6 @@
 			<button onclick="setToZero('concentric')">Φ</button>
 			<label for="concentric">Concentric</label>
 		</div>
-		<div><input type="range" id="lineExp" min="0" max="5" step="0.01" value="3.0" class="slider"><label for="lineExp">Line Feather</label></div>
 		<div id="spacing"></div>
 		<div class="zero-centered">
 			<input type="range" id="noiseAngAmp" min="-5" max="5" step="0.01" value="0" class="slider-zeroCentered">
@@ -261,7 +89,8 @@
 		<div id="spacing"></div>
 		<div><input type="range" id="hue" min="0" max="1" step="0.01" value="0.7" class="slider"><label for="hue">Hue</label></div>
 		<div><input type="range" id="sat" min="0" max="1" step="0.01" value="0.8" class="slider"><label for="sat">Saturation</label></div>
-		<div><input type="range" id="val" min="0" max="3" step="0.01" value="1..5" class="slider"><label for="val">Brightness</label></div>
+		<div><input type="range" id="val" min="0" max="3" step="0.01" value="1.5" class="slider"><label for="val">Brightness</label></div>
+		<div><input type="range" id="lineExp" min="0" max="5" step="0.01" value="3.0" class="slider"><label for="lineExp">Line Feather</label></div>
 		<div id="spacing"></div>
 		<div><input type="range" id="motionBlur" min="0" max="5" step="0.01" value="0.75" class="slider"><label for="motionBlur">Motion Blur</label></div>
 		<div><input type="range" id="superSample" min="1" max="8" step="1" value="4" class="slider"><label for="superSample">Super Sampling Factor (Blur / AA quality)</label></div>
@@ -275,11 +104,111 @@
     <canvas id="myCanvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="spiral.js"></script>
+	
+	
+	
+	<script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+    <script>
+		Coloris({
+			themeMode: 'dark',
+			alpha: true,
+			defaultColor: '#ffffff84'
+		});
+		
+        let textContainer = document.getElementById("hypnoText-container");
+        let textInput = document.getElementById("hypnoText-input");
+        let delayInput = document.getElementById("hypnoText-delay-input");
+        let spaceInput = document.getElementById("hypnoText-space-input");
+        let randomizeButton = document.getElementById("hypnoText-randomize-button");
+		let colorInput = document.querySelector('#hypnoText-color-picker');
+		
+
+        let textLines = [];
+        let currentIndex = 0;
+        let delay = 1000; // initialize at default
+        let space = 0; // initialize at default
+        let intervalId;
+        let isRandomized = false;
+		
+		// add an event listener to the color input field
+		colorInput.addEventListener('input', function() {
+			// get the hex value from the input field
+			let hexValue = this.value;
+
+			// set the background color of the div to the hex value
+			textContainer.style.color = hexValue;
+		});
+
+        function updateDisplay() {
+            clearTimeout(intervalId); // Clear the previous timeout
+            if (textLines.length > 0) {
+                textContainer.textContent = textLines[currentIndex];
+                currentIndex = (currentIndex + 1) % textLines.length;
+                if (currentIndex == 0 && isRandomized) {
+                    randomizeOrder();
+                }
+                intervalId = setTimeout(() => {
+                    textContainer.textContent = ""; // Empty the screen for the space duration
+                    setTimeout(updateDisplay, space * 1000); // Schedule the next display after the space duration
+                }, delay);
+            } else {
+                textContainer.textContent = "";
+            }
+        }
+
+        function randomizeOrder() {
+            let lastText = '';
+            if (textLines.length > 1 && currentIndex > 0) {
+                lastText = textLines[currentIndex - 1];
+            }
+
+            let randomOrder;
+            do {
+                randomOrder = textLines.slice().sort(() => Math.random() - 0.5);
+            } while (textLines.length > 1 && randomOrder[0] === lastText);
+
+            textLines = randomOrder;
+            updateDisplay();
+        }
+
+        function toggleRandomize() {
+            isRandomized = !isRandomized;
+            randomizeButton.classList.toggle("active", isRandomized);
+            if (isRandomized) {
+                randomizeOrder();
+            } else {
+                textLines = textInput.value.split("\n");
+                updateDisplay();
+            }
+        }
+
+        textInput.addEventListener("input", () => {
+            textLines = textInput.value.split("\n");
+            if (!isRandomized) {
+                updateDisplay();
+            }
+        });
+
+        delayInput.addEventListener("input", () => {
+            delay = parseFloat(delayInput.value) * 1000;
+            updateDisplay();
+        });
+
+        spaceInput.addEventListener("input", () => {
+            space = parseFloat(spaceInput.value);
+        });
+
+        randomizeButton.addEventListener("click", () => {
+            toggleRandomize()
+        });
+
+        updateDisplay();
+    </script>
+	
     <script>
 	    function hideWarning() {
 			document.getElementById("warningModal-fullPage").style.display = "none";
 		}
-		
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
@@ -289,62 +218,161 @@
                 }
             }
         }
-    </script>
-	<script>
-        function getUrlParams() {
-            let paramString = window.location.search.substr(1),
-                params = {},
-                paramList = paramString.split("&");
-
-            for (let i = 0; i < paramList.length; i++) {
-                let param = paramList[i].split("=");
-                params[param[0]] = decodeURIComponent(param[1]);
-            }
-
-            return params;
-        }
-
-        // Get URL parameters
-        const urlParams = getUrlParams();
-        
-        console.log(urlParams);
-
-
-		function resetSliders() {
-			const sliders = [
-				"globalSpeed",
-				"globalScale",
-				"freq",
-				"baseSpeed",
-				"dirFlips",
-				"concentric",
-				"lineExp",
-				"noiseAngAmp",
-				"noiseRadAmp",
-				"noiseFreq",
-				"noiseSpeed",
-				"pulseAmp",
-				"pulseFreq",
-				"pulseSpeed",
-				"pulseExp",
-				"hue",
-				"sat",
-				"val",
-				"motionBlur",
-				"superSample",
-			];
-
-			sliders.forEach((sliderId) => {
-				if (urlParams.hasOwnProperty(sliderId)) {
-					const slider = document.getElementById(sliderId);
-					slider.value = urlParams[sliderId];
-					const event = new Event("input", { bubbles: true });
-					slider.dispatchEvent(event);
-				}
+		function setToZero(id) {
+			document.getElementById(id).value = 0;
+			document.getElementById(id).dispatchEvent(new Event('input'));
+		}
+		function resetInputs() {
+			document.querySelectorAll("input[type='range']").forEach(function(slider) {
+				slider.value = slider.defaultValue;
+			});
+			document.querySelectorAll("input[type='number']").forEach(function(numField) {
+				numField.value = numField.defaultValue;
+			});
+			document.querySelectorAll("input[type='text']").forEach(function(textfield) {
+				textfield.value = "";
+			});
+			document.querySelectorAll("textarea").forEach(function(textarea) {
+				textarea.value = "";
 			});
 		}
-		
+		function randomizeSliders() {
+		  document.querySelectorAll("input[type='range']").forEach(function (slider) {
+			if (
+			  slider.id !== "superSample" &&
+			  slider.id !== "globalSpeed" &&
+			  slider.id !== "globalScale"
+			) {
+			let randomValue;
 
-    </script>
+			// Adjust noiseFreq slider value to favor very low numbers
+			if (slider.id === "noiseFreq") {
+				const randVal = Math.random();
+				randomValue = randVal * randVal * randVal * slider.max;
+			} else if (Number.isInteger(parseFloat(slider.step))) {
+				let range = (slider.max - slider.min) / slider.step;
+				let randomIndex = Math.floor(Math.random() * (range + 1));
+				randomValue = randomIndex * slider.step + parseFloat(slider.min);
+			} else {
+				randomValue =
+				  Math.random() * (slider.max - slider.min) + parseFloat(slider.min);
+				randomValue = randomValue.toFixed(
+				  slider.step.toString().split(".")[1].length
+			    );
+			}
+
+			  // Adjust concentric slider value with 75% chance of being forced to 0 and 25% of randomization
+			  if (slider.id === "concentric") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.75) {
+				  randomValue = 0;
+				}
+			  }
+			  
+			  // Adjust lineExp slider value with 25% chance of being forced to 0 and 75% of randomization
+			  if (slider.id === "lineExp") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.25) {
+				  randomValue = 0;
+				}
+			  }
+			  
+			  
+
+			  slider.value = randomValue;
+			  slider.dispatchEvent(new Event("input"));
+			}
+		  });
+		}
+
+	</script>
+	<script>
+	  const copyButton = document.getElementById('generateBtn');
+	  copyButton.addEventListener('click', function() {
+		const generatedUrl = generateURL();
+		const generatedUrlField = document.getElementById('generatedUrl');
+
+		// Copy URL to clipboard
+		navigator.clipboard.writeText(generatedUrl).then(function() {
+		  // Change button text to "Link Copied" for 1 second
+		  copyButton.textContent = "Link Copied";
+		  setTimeout(() => {
+			copyButton.textContent = "Generate Link";
+		  }, 1000);
+		});
+	  });
+	</script>
+	
+	<script>
+	function getUrlParams() {
+	
+		const inputList = [
+		{ elementType: 'textarea', inputType: 'textarea', inputId: 'hypnoText-input' },
+		{ elementType: 'input', inputType: 'number', inputId: 'hypnoText-delay-input' },
+		{ elementType: 'input', inputType: 'number', inputId: 'hypnoText-space-input' },
+		{ elementType: 'input', inputType: 'text', inputId: 'hypnoText-color-picker' },
+		{ elementType: 'button', inputType: 'button_toggle', inputId: 'hypnoText-randomize-button' },
+		{ elementType: 'input', inputType: 'range', inputId: 'globalSpeed' },
+		{ elementType: 'input', inputType: 'range', inputId: 'globalScale' },
+		{ elementType: 'input', inputType: 'range', inputId: 'freq' },
+		{ elementType: 'input', inputType: 'range', inputId: 'baseSpeed' },
+		{ elementType: 'input', inputType: 'range', inputId: 'dirFlips' },
+		{ elementType: 'input', inputType: 'range', inputId: 'concentric' },
+		{ elementType: 'input', inputType: 'range', inputId: 'noiseAngAmp' },
+		{ elementType: 'input', inputType: 'range', inputId: 'noiseRadAmp' },
+		{ elementType: 'input', inputType: 'range', inputId: 'noiseFreq' },
+		{ elementType: 'input', inputType: 'range', inputId: 'noiseSpeed' },
+		{ elementType: 'input', inputType: 'range', inputId: 'pulseAmp' },
+		{ elementType: 'input', inputType: 'range', inputId: 'pulseFreq' },
+		{ elementType: 'input', inputType: 'range', inputId: 'pulseSpeed' },
+		{ elementType: 'input', inputType: 'range', inputId: 'hue' },
+		{ elementType: 'input', inputType: 'range', inputId: 'sat' },
+		{ elementType: 'input', inputType: 'range', inputId: 'val' },
+		{ elementType: 'input', inputType: 'range', inputId: 'lineExp' },
+		{ elementType: 'input', inputType: 'range', inputId: 'motionBlur' },
+		{ elementType: 'input', inputType: 'range', inputId: 'superSample' },
+		];
+
+	
+	    let urlParams = window.location.search;
+		urlParams = urlParams.substring(1);
+	    let values = urlParams.toString().split('&');
+		
+		
+		console.log(urlParams.toString())
+		
+	  values.forEach((value, index) => {
+		let inputInfo = inputList[index];
+		let inputElement;
+		
+		
+		
+		if (inputInfo) {
+		  if (inputInfo.elementType === 'button' || inputInfo.elementType === 'textarea') {
+			inputElement = document.getElementById(inputInfo.inputId);
+		  } else {
+			inputElement = document.querySelector(`${inputInfo.elementType}[type='${inputInfo.inputType}'][id='${inputInfo.inputId}']`);
+		  }
+
+		  if (inputElement) {
+			let decodedValue = decodeURIComponent(value);
+
+			if (inputInfo.inputType === 'button_toggle') {
+			  inputElement.classList.toggle('active', decodedValue === 'true');
+			} else if (inputInfo.inputType === 'textarea') {
+			  inputElement.value = decodedValue.replace(/\\r\\n/g, '\r\n');
+			} else {
+			  inputElement.value = decodedValue;
+			}
+
+			let event = new Event('input');
+			inputElement.dispatchEvent(event);
+		  }
+		}
+	  });
+	}
+	getUrlParams();
+	</script>
+	
 </body>
 </html>
