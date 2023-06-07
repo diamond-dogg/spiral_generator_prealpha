@@ -10,6 +10,11 @@
 			overflow: hidden;
 			background-color: black;
 		}
+		button:hover {
+			background-color: rgba(0,0,0,0.75);
+			color: rgba(255, 255, 255, 0.75);
+		}
+
 		button {
 			background-color: rgba(0, 0, 0, 0.5);
 			color: rgba(255, 255, 255, 0.5);
@@ -38,6 +43,8 @@
 			color: rgba(255,255,255,0.2);
 		}
 		#controls {
+			background-color: rgba(0,0,0,0.5);
+			padding: 1vw;
 			position: absolute;
 			display: inline-block;
 			color: rgba(255,255,255,0.5);
@@ -47,30 +54,101 @@
 			padding: calc(0.5vw);
 		}
 		
-		/*                            commented all of this
-        .zero-centered {
-            position: relative;
-            display: block;
-        }
-
-        .zero-centered::before {
-            content: "";
-            position: absolute;
-            top: calc(0.3vw);
-            left: calc(17.8% - 1px); /* 1px is half of the width of the zero indicator line */
-            width: calc(0.1vw);
-            height: calc(1vw); /* Adjust as needed for your slider's height */
-            background-color: rgba(255,255,255,0.4); /* Change the color as desired */
-        }
-
-        .zero-centered input[type="range"] {
-            margin: 0;
-        }
-		*/
-		
 	    input[type="range"] {
 			font-size: calc(0.8vw);
 	    }
+		
+		
+		.slider {
+			-webkit-appearance: none;
+			width: 10vw;
+			height: 0.25vw; /* relative to window size */
+			background: #d3d3d3;
+			outline: none;
+			opacity: 0.7;
+			-webkit-transition: .2s;
+			transition: opacity .2s;
+		}
+
+		.slider:hover {
+			opacity: 1;
+		}
+
+		.slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 0.5vw; /* relative to window size */
+			height: 0.5vw; /* relative to window size */
+			background: #3d5c91;
+			cursor: pointer;
+		}
+
+		.slider::-moz-range-thumb {
+			width: 0.5vw; /* relative to window size */
+			height: 0.5vw; /* relative to window size */
+			background: #3d5c91;
+			cursor: pointer;
+		}
+		
+		
+		
+		
+		.slider-zeroCentered {
+			-webkit-appearance: none;
+			width: 10vw;
+			height: 0.25vw; /* relative to window size */
+			background: #d3d3d3;
+			outline: none;
+			opacity: 0.7;
+			-webkit-transition: .2s;
+			transition: opacity .2s;
+		}
+
+		.slider-zeroCentered:hover {
+			opacity: 1;
+		}
+
+		.slider-zeroCentered::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 0.5vw; /* relative to window size */
+			height: 0.5vw; /* relative to window size */
+			background: #3d5c91;
+			cursor: pointer;
+		}
+
+		.slider-zeroCentered::-moz-range-thumb {
+			width: 0.5vw; /* relative to window size */
+			height: 0.5vw; /* relative to window size */
+			background: #3d5c91;
+			cursor: pointer;
+		}
+		
+		
+		
+		
+		.slider-zeroCentered::-webkit-slider-runnable-track {
+			height: 0.25vw;
+			background: linear-gradient(to right, transparent 49%, black 49%, black 51%, transparent 51%),
+						linear-gradient(to bottom, #d3d3d3, #d3d3d3);
+			background-size: 100% 100%, 100% 100%;
+			background-position: center center, left center;
+			background-repeat: no-repeat;
+		}
+
+		.slider-zeroCentered::-moz-range-track {
+			height: 0.25vw;
+			background: linear-gradient(to right, transparent 49%, black 49%, black 51%, transparent 51%),
+						linear-gradient(to bottom, #d3d3d3, #d3d3d3);
+			background-size: 100% 100%, 100% 100%;
+			background-position: center center, left center;
+			background-repeat: no-repeat;
+		}
+		
+		
+		
+		
+		
 		
 		
 		.warning-modal-full-page {
@@ -109,8 +187,16 @@
 		}
 
 		.warning-modal button {
-			background-color: #ff7f7f; color: black; padding: 10px 20px;
-			font-size: 1.2em; border: none; cursor: pointer;
+			background-color: #e66363;
+			color: black;
+			padding: 10px 20px;
+			font-size: 1.2em;
+			border: none;
+			cursor: pointer;
+		}
+
+		.warning-modal button:hover {
+			background-color: #ff7f7f;
 		}
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -127,63 +213,63 @@
 	
 	<div id="controls">
 		<div class="zero-centered">
-			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1">
+			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1" class="slider-zeroCentered">
 			<button onclick="setToZero('globalSpeed')">Φ</button>
 			<label for="globalSpeed">Global Speed</label>
 		</div>
-		<div><input type="range" id="globalScale" min="0.4" max="5" step="0.01" value="1"><label for="globalScale">Global Scale</label></div>
+		<div><input type="range" id="globalScale" min="0.4" max="5" step="0.01" value="1" class="slider"><label for="globalScale">Global Scale</label></div>
 		<div id="spacing"></div>
-		<div><input type="range" id="freq" min="0" max="60" step="0.1" value="20"><label for="freq">Base Frequency</label></div>
+		<div><input type="range" id="freq" min="0" max="60" step="0.1" value="20" class="slider"><label for="freq">Base Frequency</label></div>
 		<div class="zero-centered">
-			<input type="range" id="baseSpeed" min="-10" max="10" step="0.1" value="5">
+			<input type="range" id="baseSpeed" min="-10" max="10" step="0.1" value="5" class="slider-zeroCentered">
 			<button onclick="setToZero('baseSpeed')">Φ</button>
 			<label for="baseSpeed">Base Speed</label>
 		</div>
-		<div><input type="range" id="dirFlips" min="0" max="5" step="1" value="5"><label for="dirFlips">Direction Flips</label></div>
+		<div><input type="range" id="dirFlips" min="0" max="5" step="1" value="5" class="slider"><label for="dirFlips">Direction Flips</label></div>
 		<div class="zero-centered">
-			<input type="range" id="concentric" min="-10" max="10" step="0.1" value="0">
+			<input type="range" id="concentric" min="-10" max="10" step="0.1" value="0" class="slider-zeroCentered">
 			<button onclick="setToZero('concentric')">Φ</button>
 			<label for="concentric">Concentric</label>
 		</div>
-		<div><input type="range" id="lineExp" min="0" max="5" step="0.01" value="3.0"><label for="lineExp">Line Feather</label></div>
+		<div><input type="range" id="lineExp" min="0" max="5" step="0.01" value="3.0" class="slider"><label for="lineExp">Line Feather</label></div>
 		<div id="spacing"></div>
 		<div class="zero-centered">
-			<input type="range" id="noiseAngAmp" min="-5" max="5" step="0.01" value="0">
+			<input type="range" id="noiseAngAmp" min="-5" max="5" step="0.01" value="0" class="slider-zeroCentered">
 			<button onclick="setToZero('noiseAngAmp')">Φ</button>
-			<label for="noiseAngAmp">Noise Amplitude (angle)</label>
+			<label for="noiseAngAmp">Noise Amplitude (Angle)</label>
 		</div>
 		<div class="zero-centered">
-			<input type="range" id="noiseRadAmp" min="-0.1" max="0.1" step="0.001" value="0">
+			<input type="range" id="noiseRadAmp" min="-0.1" max="0.1" step="0.001" value="0" class="slider-zeroCentered">
 			<button onclick="setToZero('noiseRadAmp')">Φ</button>
-			<label for="noiseRadAmp">Noise Amplitude (radius)</label>
+			<label for="noiseRadAmp">Noise Amplitude (Radius)</label>
 		</div>
-		<div><input type="range" id="noiseFreq" min="0" max="20" step="0.1" value="6"><label for="noiseFreq">Noise Frequency</label></div>
+		<div><input type="range" id="noiseFreq" min="0" max="20" step="0.1" value="6" class="slider"><label for="noiseFreq">Noise Frequency</label></div>
 		<div class="zero-centered">
-			<input type="range" id="noiseSpeed" min="-1" max="1" step="0.01" value="-0.2">
+			<input type="range" id="noiseSpeed" min="-1" max="1" step="0.01" value="-0.2" class="slider-zeroCentered">
 			<button onclick="setToZero('noiseSpeed')">Φ</button>
 			<label for="noiseSpeed">Noise Rotation Speed</label>
 		</div>
 		<div id="spacing"></div>
-		<div><input type="range" id="pulseAmp" min="0" max="5" step="0.01" value="2"><label for="pulseAmp">Pulse Amplitude</label></div>
-		<div><input type="range" id="pulseFreq" min="0" max="20" step="0.1" value="10.6"><label for="pulseFreq">Pulse Frequency</label></div>
+		<div><input type="range" id="pulseAmp" min="0" max="5" step="0.01" value="2" class="slider"><label for="pulseAmp">Pulse Amplitude</label></div>
+		<div><input type="range" id="pulseFreq" min="0" max="20" step="0.1" value="10.6" class="slider"><label for="pulseFreq">Pulse Frequency</label></div>
 		<div class="zero-centered">
-			<input type="range" id="pulseSpeed" min="-5" max="5" step="0.01" value="1.5">
+			<input type="range" id="pulseSpeed" min="-5" max="5" step="0.01" value="1.5" class="slider-zeroCentered">
 			<button onclick="setToZero('pulseSpeed')">Φ</button>
 			<label for="pulseSpeed">Pulse Speed</label>
 		</div>
-		<div><input type="range" id="pulseExp" min="0" max="5" step="0.01" value="2"><label for="pulseExp">Pulse Exponent</label></div>
+		<div><input type="range" id="pulseExp" min="0" max="5" step="0.01" value="2" class="slider"><label for="pulseExp">Pulse Exponent</label></div>
 		<div id="spacing"></div>
-		<div><input type="range" id="hue" min="0" max="1" step="0.01" value="0.7"><label for="hue">Hue</label></div>
-		<div><input type="range" id="sat" min="0" max="1" step="0.01" value="0.8"><label for="sat">Saturation</label></div>
-		<div><input type="range" id="val" min="0" max="3" step="0.01" value="1.0"><label for="val">Brightness</label></div>
+		<div><input type="range" id="hue" min="0" max="1" step="0.01" value="0.7" class="slider"><label for="hue">Hue</label></div>
+		<div><input type="range" id="sat" min="0" max="1" step="0.01" value="0.8" class="slider"><label for="sat">Saturation</label></div>
+		<div><input type="range" id="val" min="0" max="3" step="0.01" value="1.0" class="slider"><label for="val">Brightness</label></div>
 		<div id="spacing"></div>
-		<div><input type="range" id="motionBlur" min="0" max="5" step="0.01" value="0.75"><label for="motionBlur">Motion Blur</label></div>
-		<div><input type="range" id="superSample" min="1" max="8" step="1" value="4"><label for="superSample">Super Sampling Factor (motion blur / AA quality)</label></div>
+		<div><input type="range" id="motionBlur" min="0" max="5" step="0.01" value="0.75" class="slider"><label for="motionBlur">Motion Blur</label></div>
+		<div><input type="range" id="superSample" min="1" max="8" step="1" value="4" class="slider"><label for="superSample">Super Sampling Factor (Blur / AA quality)</label></div>
 		<div id="spacing"></div>
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
 		<div><button id="generateBtn">Generate Visualizer</button></div>
 		<div id="spacing"></div>
-		<div id="fps" style="padding-left: 10px;"></div>
+		<div id="fps" style="padding-left: 1vw;"></div>
 	</div>
     <button class="fullscreen" onclick="toggleFullScreen()">fullscreen</button>
     <canvas id="myCanvas"></canvas>
