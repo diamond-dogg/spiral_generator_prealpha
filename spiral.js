@@ -216,9 +216,9 @@ const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
 let prevTime = 0;
-let targetFPS = 55;
+let targetFPS = 52;
 let scaleFactor = 1; // Initialize the scaling factor to 1
-let minScaleFactor = 1; // Minimum scaling factor to prevent extremely low resolution               CHANGE BACK TO 0.5
+let minScaleFactor = 0.5; // Minimum scaling factor to prevent extremely low resolution               CHANGE BACK TO 0.5
 let frameCount = 0; // Count number of frames in sample period
 let samplePeriod = 3; // Seconds per sample period
 let sumFPS = 0; // Sum of FPS values in sample period
