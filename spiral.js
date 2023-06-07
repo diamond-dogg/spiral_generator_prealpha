@@ -4,6 +4,8 @@ const renderer = new THREE.WebGLRenderer({ canvas });
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 const scene = new THREE.Scene();
 const plane = new THREE.PlaneBufferGeometry(2, 2);
+
+// glsl shader
 const fragmentShader = `	
     uniform vec2 iResolution;
     uniform float iTime;
