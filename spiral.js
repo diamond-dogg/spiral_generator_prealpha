@@ -15,6 +15,7 @@ const fragmentShader = `
     uniform float BASE_SPEED;
 	uniform int DIR_FLIPS;
 	uniform float CONCENTRIC;
+	uniform float CONCENTRIC_SPEED;
 
     uniform float NOISE_FREQ;
     uniform float NOISE_SPEED;
@@ -91,7 +92,7 @@ const fragmentShader = `
 		polar.x += displace.y * NOISE_RAD_AMP; // darken spiral with nosie (polar.x affects brightness)
 			
 		// Spiral
-		polar.y += tan(polar.x * CONCENTRIC); // add concentric circles
+		polar.y += tan((polar.x + CONCENTRIC_SPEED) * CONCENTRIC); // add concentric circles
 		polar.y += polar.x * FREQ + globalTime * BASE_SPEED; // twist the uv space around the origin (basis of the spiral)
 		float pulse = sin(polar.x * PULSE_FREQ + globalTime * PULSE_SPEED); // create pulse factor
 		polar.y -= customPow(pulse, PULSE_EXP) * PULSE_AMP; // contract/expand based on pulse factor
@@ -170,6 +171,7 @@ handleValueChange('sat', 'SAT');
 handleValueChange('val', 'VAL');
 handleValueChange('lineExp', 'LINE_EXP');
 handleValueChange('concentric', 'CONCENTRIC');
+handleValueChange('concentricSpeed', 'CONCENTRIC_SPEED');
 handleValueChange('motionBlur', 'MOTION_BLUR');
 handleValueChange('superSample', 'SUPERSAMPLING_FACTOR');
 
@@ -192,6 +194,7 @@ const uniforms = {
     PULSE_AMP: { value: 2.0 },
     LINE_EXP: { value: 3.0 },
     CONCENTRIC: { value: 0.0 },
+	CONCENTRIC_SPEED: { value: 0.0 },
 	HUE: { value: 0.7 },
 	SAT: { value: 0.8 },
 	VAL: { value: 1.5 },
