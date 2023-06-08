@@ -13,7 +13,7 @@
 			<h1>Seizure Warning</h1>
 			<p>This website contains flashing images that might trigger seizures for people with photosensitive epilepsy.</p>
 			<p>If you have a history of epilepsy or seizures, please avoid this site like the plague.</p>
-			<button id="continueButton" onclick="hideWarning()">Continue</button>
+			<button id="continueButton" onclick="hideWarning(); restartDisplay();">Continue</button>
 		</div>
 	</div>
 	
@@ -194,6 +194,10 @@
             textContainer.style.fontSize = sizeValue;
         });
 		
+		function restartDisplay() {
+            currentIndex = 0;
+            updateDisplay();
+        }
 
 		function updateDisplay() {
 			clearTimeout(intervalId); // Clear the previous timeout
