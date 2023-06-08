@@ -98,10 +98,56 @@
 		<div id="spacing"></div>
 		<div id="fps" style="padding-left: 1vw;"></div>
 	</div>
-    <button class="fullscreen" onclick="toggleFullScreen()">fullscreen</button>
+    <button class="fullscreen" id="fullscreenButton" onclick="toggleFullScreen()" style="display: none;">fullscreen</button>
     <canvas id="myCanvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="spiral.js"></script>
+	
+	
+	
+	
+	
+	<script>
+		let timer;
+		let isElementHovered = false;
+
+		document.addEventListener('mousemove', () => {
+			clearTimeout(timer);
+			if (document.fullscreenElement) {
+				document.getElementById('fullscreenButton').style.display = 'block';
+				document.querySelector('body').style.cursor = 'auto';
+				timer = setTimeout(() => {
+					document.getElementById('fullscreenButton').style.display = isElementHovered ? 'block' : 'none';
+					document.querySelector('body').style.cursor = 'none';
+				}, 2000);
+			}
+		});
+
+		document.getElementById('fullscreenButton').addEventListener('mouseover', () => {
+			isElementHovered = true;
+		});
+
+		document.getElementById('fullscreenButton').addEventListener('mouseout', () => {
+			isElementHovered = false;
+		});
+
+		function toggleFullScreen() {
+			if (!document.fullscreenElement) {
+				document.documentElement.requestFullscreen();
+				document.getElementById('fullscreenButton').style.display = 'none';
+			} else {
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+					document.getElementById('fullscreenButton').style.display = 'block';
+					document.querySelector('body').style.cursor = 'auto';
+					clearTimeout(timer);
+				}
+			}
+		}
+	</script>
+	
+	
+	
 	
 	
 	
@@ -149,22 +195,38 @@
         });
 		
 
-        function updateDisplay() {
-            clearTimeout(intervalId); // Clear the previous timeout
-            if (textLines.length > 0) {
-                textContainer.textContent = textLines[currentIndex];
-                currentIndex = (currentIndex + 1) % textLines.length;
-                if (currentIndex == 0 && isRandomized) {
-                    randomizeOrder();
-                }
-                intervalId = setTimeout(() => {
-                    textContainer.textContent = ""; // Empty the screen for the space duration
-                    setTimeout(updateDisplay, space * 1000); // Schedule the next display after the space duration
-                }, delay);
-            } else {
-                textContainer.textContent = "";
-            }
-        }
+		function updateDisplay() {
+			clearTimeout(intervalId); // Clear the previous timeout
+			if (textLines.length > 0) {
+				setFadeOutInDuration(space * 0.2);
+				fadeOut(() => {
+					textContainer.textContent = textLines[currentIndex];
+					fadeIn(() => {
+						currentIndex = (currentIndex + 1) % textLines.length;
+						if (currentIndex == 0 && isRandomized) {
+							randomizeOrder();
+						}
+						intervalId = setTimeout(updateDisplay, delay);
+					});
+				});
+			} else {
+				textContainer.textContent = "";
+			}
+		}
+
+		function fadeIn(onComplete) {
+			textContainer.classList.remove("text-fade");
+			setTimeout(onComplete, space * 1000);
+		}
+
+		function fadeOut(onComplete) {
+			textContainer.classList.add("text-fade");
+			setTimeout(onComplete, space * 1000);
+		}
+
+		function setFadeOutInDuration(duration) {
+			textContainer.style.transitionDuration = `${duration}s`;
+		}
 
         function randomizeOrder() {
             let lastText = '';
@@ -219,15 +281,7 @@
 	    function hideWarning() {
 			document.getElementById("warningModal-fullPage").style.display = "none";
 		}
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
+
 		function setToZero(id) {
 			document.getElementById(id).value = 0;
 			document.getElementById(id).dispatchEvent(new Event('input'));
@@ -368,8 +422,10 @@
 		navigator.clipboard.writeText(generatedUrl).then(function() {
 		  // Change button text to "Link Copied" for 1 second
 		  copyButton.textContent = "Link Copied";
+		  copyButton.style = "color: rgba(255, 255, 255, 0.75)";
 		  setTimeout(() => {
 			copyButton.textContent = "Generate Link";
+			copyButton.style = "";
 		  }, 1000);
 		});
 	  });
