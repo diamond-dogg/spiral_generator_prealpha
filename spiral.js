@@ -215,8 +215,10 @@ const material = new THREE.ShaderMaterial({
 const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
+let advicePage = "gpu-error.html"
 let prevTime = 0;
-let targetFPS = 52;
+let terribleFPS = 10; // FPS for sending to advice page
+let thresholdFPS = 52; // FPS for halving resolution
 let scaleFactor = 1; // Initialize the scaling factor to 1
 let minScaleFactor = 0.5; // Minimum scaling factor to prevent extremely low resolution               CHANGE BACK TO 0.5
 let frameCount = 0; // Count number of frames in sample period
@@ -246,11 +248,15 @@ function render(time) {
     prevTime = time;
     sumFPS += FPS;
     frameCount += 1;
-    
+	
     const averageFPS = sumFPS / frameCount;
     
-    if (!resolutionAdapted && frameCount >= targetFPS * samplePeriod) {
-        if (averageFPS < targetFPS) {
+    if (!resolutionAdapted && time >= samplePeriod) {
+		if (averageFPS < terribleFPS) {
+			window.location = advicePage;
+			scaleFactor = 0.1;
+            resolutionAdapted = true;
+		} else if (averageFPS < thresholdFPS) {
             scaleFactor = minScaleFactor;
             resolutionAdapted = true;
         }
