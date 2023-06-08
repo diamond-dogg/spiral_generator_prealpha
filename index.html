@@ -23,6 +23,7 @@
         <textarea id="hypnoText-input" placeholder="Enter subliminals here"></textarea>
         <div><input id="hypnoText-delay-input" type="number" min="0" step="0.1" value="1.0"><label style="font-size: 1vh"> Delay (seconds)</label></div>
         <div><input id="hypnoText-space-input" type="number" min="0" step="0.1" value="0.0"><label style="font-size: 1vh"> Spacing (seconds)</label></div>
+		<div><input type="range" id="hypnoText-size-input" min="0.5" max="50" step="0.01" value="10" class="slider" style="width: 70%; margin-bottom: 2vh;"><label style="position: absolute; font-size: 1vh; margin-top: -0.1vh; margin-left: 0.2vh;">Size</label></div>
 		<input id="hypnoText-color-picker" type="text" value="#ffffff84" data-coloris>
         <button id="hypnoText-randomize-button" type="button_toggle">Randomize Order</button>
     </div>
@@ -48,9 +49,14 @@
 		</div>
 		<div><input type="range" id="dirFlips" min="0" max="5" step="1" value="5" class="slider"><label for="dirFlips">Direction Flips</label></div>
 		<div class="zero-centered">
-			<input type="range" id="concentric" min="-10" max="10" step="0.1" value="0" class="slider-zeroCentered">
+			<input type="range" id="concentric" min="-10" max="10" step="0.05" value="0" class="slider-zeroCentered">
 			<button onclick="setToZero('concentric')">Φ</button>
 			<label for="concentric">Concentric</label>
+		</div>
+		<div class="zero-centered">
+			<input type="range" id="concentricSpeed" min="-10" max="10" step="0.05" value="0" class="slider-zeroCentered">
+			<button onclick="setToZero('concentric')">Φ</button>
+			<label for="concentric">Concentric Speed</label>
 		</div>
 		<div id="spacing"></div>
 		<div class="zero-centered">
@@ -113,6 +119,7 @@
         let spaceInput = document.getElementById("hypnoText-space-input");
         let randomizeButton = document.getElementById("hypnoText-randomize-button");
 		let colorInput = document.querySelector('#hypnoText-color-picker');
+		let sizeInput = document.querySelector('#hypnoText-size-input');
 		
 
         let textLines = [];
@@ -127,9 +134,20 @@
 			// get the hex value from the input field
 			let hexValue = this.value;
 
-			// set the background color of the div to the hex value
+			// set the color of the div to the hex value
 			textContainer.style.color = hexValue;
 		});
+
+
+        // add an event listener to the size input field
+        sizeInput.addEventListener('input', function() {
+            // get the size value from the input field
+            let sizeValue = this.value + 'vh';
+
+            // set the font size of the div to the size value
+            textContainer.style.fontSize = sizeValue;
+        });
+		
 
         function updateDisplay() {
             clearTimeout(intervalId); // Clear the previous timeout
@@ -260,6 +278,15 @@
 				  randomValue = 0;
 				}
 			  }
+
+			  // Adjust dirFlips slider value with 75% chance of being forced to 0 and 25% of randomization
+			  if (slider.id === "dirFlips") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.25) {
+				  randomValue = 0;
+				}
+			  }
+
 			  
 			  // Adjust lineExp slider value with 25% chance of being forced to 0 and 75% of randomization
 			  if (slider.id === "lineExp") {
@@ -281,6 +308,7 @@
 				{ elementType: 'textarea', inputType: 'textarea', inputId: 'hypnoText-input' },
 				{ elementType: 'input', inputType: 'number', inputId: 'hypnoText-delay-input' },
 				{ elementType: 'input', inputType: 'number', inputId: 'hypnoText-space-input' },
+				{ elementType: 'input', inputType: 'number', inputId: 'hypnoText-size-input' },
 				{ elementType: 'input', inputType: 'text', inputId: 'hypnoText-color-picker' },
 				{ elementType: 'button', inputType: 'button_toggle', inputId: 'hypnoText-randomize-button' },
 				{ elementType: 'input', inputType: 'range', inputId: 'globalSpeed' },
@@ -289,6 +317,7 @@
 				{ elementType: 'input', inputType: 'range', inputId: 'baseSpeed' },
 				{ elementType: 'input', inputType: 'range', inputId: 'dirFlips' },
 				{ elementType: 'input', inputType: 'range', inputId: 'concentric' },
+				{ elementType: 'input', inputType: 'range', inputId: 'concentricSpeed' },
 				{ elementType: 'input', inputType: 'range', inputId: 'noiseAngAmp' },
 				{ elementType: 'input', inputType: 'range', inputId: 'noiseRadAmp' },
 				{ elementType: 'input', inputType: 'range', inputId: 'noiseFreq' },
