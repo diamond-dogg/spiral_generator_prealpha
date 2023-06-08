@@ -92,7 +92,7 @@ const fragmentShader = `
 		polar.x += displace.y * NOISE_RAD_AMP; // darken spiral with nosie (polar.x affects brightness)
 			
 		// Spiral
-		polar.y += tan((polar.x + CONCENTRIC_SPEED) * CONCENTRIC); // add concentric circles
+		polar.y += tan(polar.x * CONCENTRIC + globalTime * CONCENTRIC_SPEED * CONCENTRIC); // add concentric circles
 		polar.y += polar.x * FREQ + globalTime * BASE_SPEED; // twist the uv space around the origin (basis of the spiral)
 		float pulse = sin(polar.x * PULSE_FREQ + globalTime * PULSE_SPEED); // create pulse factor
 		polar.y -= customPow(pulse, PULSE_EXP) * PULSE_AMP; // contract/expand based on pulse factor
