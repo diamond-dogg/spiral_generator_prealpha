@@ -6,6 +6,12 @@
 	<link rel="stylesheet" type="text/css" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css">
+
+	<!--
+		In an ideal world, we could load this straight from the GitHub page of lz-string: https://github.com/pieroxy/lz-string/tree/master
+		However, a world with hyperactive CORB is not an ideal world.
+	-->
+	<script type="text/javascript" src="lz-string.min.js"></script>
 </head>
 <body onload="resetInputs()">
 	<div class="warning-modal-full-page" id="warningModal-fullPage">
@@ -391,7 +397,7 @@
 				{ elementType: 'input', inputType: 'range', inputId: 'superSample' },
 			];
 
-			let params = "?";
+			let params = "";
 			inputList.forEach(function (inputInfo) {
 				let inputElement;
 				if (inputInfo.elementType === 'button' || inputInfo.elementType === 'textarea') {
@@ -412,8 +418,7 @@
 					params += `${value}&`;
 				}
 			});
-			const url = "https://diamond-dogg.github.io/spiral_generator_prealpha/viewer.html" + params;
-			return url;
+			return "https://diamond-dogg.github.io/spiral_generator_prealpha/viewer.html?" + LZString.compressToEncodedURIComponent(params);
 		}
 	</script>
 	<script>
