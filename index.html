@@ -367,6 +367,18 @@
 			}
 		  });
 		}
+
+		function copyURLToClipboard(url) {
+			navigator.clipboard.writeText(url).then(function() {
+				copyButton.textContent = "Link Copied";
+				copyButton.style = "color: rgba(255, 255, 255, 0.75)";
+				setTimeout(() => {
+					copyButton.textContent = "Generate Link";
+					copyButton.style = "";
+				}, 1000);
+			});
+		}
+
 		function generateURL() {
 			const inputList = [
 				{ elementType: 'textarea', inputType: 'textarea', inputId: 'hypnoText-input' },
@@ -418,26 +430,37 @@
 					params += `${value}&`;
 				}
 			});
-			return "https://diamond-dogg.github.io/spiral_generator_prealpha/viewer.html?" + LZString.compressToEncodedURIComponent(params);
+
+			/* 
+				We use is.gd for link shortening, since it's one of few URL shorteners with a nice open API.
+				However, it also doesn't have CORS enabled. That means we have to send our request to is.gd
+				through a CORS proxy. Isn't web development great?
+			*/
+			var url = "https://diamond-dogg.github.io/spiral_generator_prealpha/viewer.html?" + LZString.compressToEncodedURIComponent(params);
+			var shortenerApiUrl = "https://is.gd/create.php?format=simple&url=" + url
+			fetch("https://corsproxy.io/?" + encodeURIComponent(shortenerApiUrl)).then((response) => {
+				if(response.ok) {
+					response.text().then((text) => {
+						copyURLToClipboard(text);
+					})
+				}
+				else {
+					console.log("Link shortener (or CORS proxy) returned non-OK!")
+					console.log(response);
+					console.log(response.status);
+					console.log(response.text());
+					copyURLToClipboard(url);
+				}
+			}).catch((error) => {
+				console.log("Error when calling link shortener service:");
+				console.log(error);
+				copyURLToClipboard(url);
+			});
 		}
 	</script>
 	<script>
 	  const copyButton = document.getElementById('generateBtn');
-	  copyButton.addEventListener('click', function() {
-		const generatedUrl = generateURL();
-		const generatedUrlField = document.getElementById('generatedUrl');
-
-		// Copy URL to clipboard
-		navigator.clipboard.writeText(generatedUrl).then(function() {
-		  // Change button text to "Link Copied" for 1 second
-		  copyButton.textContent = "Link Copied";
-		  copyButton.style = "color: rgba(255, 255, 255, 0.75)";
-		  setTimeout(() => {
-			copyButton.textContent = "Generate Link";
-			copyButton.style = "";
-		  }, 1000);
-		});
-	  });
+	  copyButton.addEventListener('click', generateURL);
 	</script>
 </body>
 </html>
