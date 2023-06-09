@@ -441,7 +441,8 @@
 			fetch("https://corsproxy.io/?" + encodeURIComponent(shortenerApiUrl)).then((response) => {
 				if(response.ok) {
 					response.text().then((text) => {
-						copyURLToClipboard(text);
+						let shortUrlCode = text.split("/").slice(-1);
+						copyURLToClipboard("https://diamond-dogg.github.io/spiral_generator_prealpha/short.html?" + shortUrlCode);
 					})
 				}
 				else {
