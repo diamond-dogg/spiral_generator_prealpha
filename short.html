@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<head>
+    <title>Spiral Viewer</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<div class="warning-modal-full-page" id="warningModal-fullPage">
+		<div class="warning-modal">
+			<h1>Seizure Warning</h1>
+			<p>This website contains flashing images that might trigger seizures for people with photosensitive epilepsy.</p>
+			<p>If you have a history of epilepsy or seizures, please avoid this site like the plague.</p>
+			<button id="continueButton" onclick="hideWarning(); restartDisplay();">Continue</button>
+		</div>
+	</div>
+
+    <script type="text/javascript">
+        if(document.location.search.length < 2) {
+            window.location.href = "https://diamond-dogg.github.io/spiral_generator_prealpha/"
+        }
+        else {
+            // bounce to an "actual" link shortener, which then redirects to our viewer
+            window.location.href = "https://is.gd/" + document.location.search.substring(1);
+        }
+    </script>
+</body>
