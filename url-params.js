@@ -131,6 +131,8 @@ function getUrlParams() {
 	let urlParams = window.location.search;
 	if (!urlParams.includes('&')) {
 		urlParams = LZString.decompressFromEncodedURIComponent(urlParams.substring(1));
+	} else {
+		urlParams = urlParams.substring(1);
 	}
 	let values = urlParams.toString().split('&');
 
