@@ -44,9 +44,21 @@ canvas {
 	background: rgba(0, 0, 0, 0);
 }
 .text-fade {
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
 }
+
+select {
+	background-color: rgba(0, 0, 0, 0.5);
+	color: rgba(255, 255, 255, 0.5);
+	height: 1.5vh;
+	width: 30%;
+	margin-bottom: 0.4vh;
+}
+
+
+
+
 #hypnoText-container {
 	position: absolute;
 	top: 50%;
@@ -81,7 +93,7 @@ canvas {
 	background-color: rgba(0,0,0,0.5);
 	color: rgba(255,255,255,0.5);
 	width: 25%;
-	margin-bottom: 2vh;
+	margin-bottom: 1vh;
 }
 
 #hypnoText-color-picker {
