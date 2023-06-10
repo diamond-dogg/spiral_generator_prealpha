@@ -64,6 +64,7 @@ function generateURL(edit = false) {
 		through a CORS proxy. Isn't web development great?
 	*/
 	
+	
 	if (edit === false) {
 		var url = "https://diamond-dogg.github.io/spiral_generator_prealpha/viewer.html?" + LZString.compressToEncodedURIComponent(params);
 	} else {
