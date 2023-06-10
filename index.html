@@ -6,6 +6,7 @@
 	<link rel="stylesheet" type="text/css" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
 
 	<!--
 		In an ideal world, we could load this straight from the GitHub page of lz-string: https://github.com/pieroxy/lz-string/tree/master
@@ -13,7 +14,7 @@
 	-->
 	<script type="text/javascript" src="lz-string.min.js"></script>
 </head>
-<body onload="resetInputs()">
+<body onload="resetInputs(); getUrlParams();">
 	<div class="warning-modal-full-page" id="warningModal-fullPage">
 		<div class="warning-modal">
 			<h1>Seizure Warning</h1>
@@ -26,12 +27,27 @@
 	
 	<div id="hypnoText-container"></div>
 	<div id="hypnoText-controls">
-        <textarea id="hypnoText-input" placeholder="Enter subliminals here"></textarea>
-        <div><input id="hypnoText-delay-input" type="number" min="0" step="0.1" value="1.0"><label style="font-size: 1vh"> Delay (seconds)</label></div>
+        <textarea id="hypnoText-input" placeholder="Enter subliminals here:&#10;(empty lines = blank delay)"></textarea>
+		<div><input id="hypnoText-delay-input" type="number" min="0" step="0.1" value="1.0"><label style="font-size: 1vh"> Delay (seconds)</label></div>
         <div><input id="hypnoText-space-input" type="number" min="0" step="0.1" value="0.0"><label style="font-size: 1vh"> Spacing (seconds)</label></div>
+		<div><select id="hypnoText-font-picker" type="select" style="margin-bottom: 2vh"></select><label style="font-size: 1vh"> Font</label></div>
+		<div><input type="range" id="hypnoText-fade-input" min="0.01" max="0.99" step="0.01" value="0.3" class="slider" style="width: 70%; margin-bottom: 2vh;"><label style="position: absolute; font-size: 1vh; margin-top: -0.7vh; margin-left: 0.2vh;">Spacing Fade</label></div>
 		<div><input type="range" id="hypnoText-size-input" min="0.5" max="50" step="0.01" value="10" class="slider" style="width: 70%; margin-bottom: 2vh;"><label style="position: absolute; font-size: 1vh; margin-top: -0.1vh; margin-left: 0.2vh;">Size</label></div>
 		<input id="hypnoText-color-picker" type="text" value="#ffffff84" data-coloris>
-        <button id="hypnoText-randomize-button" type="button_toggle">Randomize Order (currently broken)</button>
+		<div style="margin-top: 1vh;">
+            <select id="hypnoText-blendMode-input" type="select">
+				<option value="normal">Normal</option>
+                <option value="multiply">Multiply</option>
+                <option value="screen">Screen</option>
+                <option value="overlay">Overlay</option>
+				<option value="color-dodge">Color Dodge</option>
+                <option value="difference">Difference</option>
+                <option value="color">Color</option>
+                <option value="luminosity">Luminosity</option>
+            </select>
+			<label style="font-size: 1vh"> Blend Mode</label>
+        </div>
+        <button id="hypnoText-randomize-button" type="button_toggle">Randomize Order</button>
     </div>
 	
 	
@@ -48,12 +64,12 @@
 		<div><input type="range" id="globalScale" min="0.4" max="5" step="0.01" value="1" class="slider"><label for="globalScale">Global Scale</label></div>
 		<div id="spacing"></div>
 		<div><input type="range" id="freq" min="0" max="60" step="0.1" value="20" class="slider"><label for="freq">Base Frequency</label></div>
+		<div><input type="range" id="exp" min="1" max="2" step="0.01" value="1" class="slider"><label for="exp">Base Exponent</label></div>
 		<div class="zero-centered">
-			<input type="range" id="baseSpeed" min="-10" max="10" step="0.1" value="5" class="slider-zeroCentered">
+			<input type="range" id="baseSpeed" min="-20" max="20" step="0.1" value="5" class="slider-zeroCentered">
 			<button onclick="setToZero('baseSpeed')">Φ</button>
 			<label for="baseSpeed">Base Speed</label>
 		</div>
-		<div><input type="range" id="dirFlips" min="0" max="5" step="1" value="5" class="slider"><label for="dirFlips">Direction Flips</label></div>
 		<div class="zero-centered">
 			<input type="range" id="concentric" min="-10" max="10" step="0.05" value="0" class="slider-zeroCentered">
 			<button onclick="setToZero('concentric')">Φ</button>
@@ -68,12 +84,12 @@
 		<div class="zero-centered">
 			<input type="range" id="noiseAngAmp" min="-5" max="5" step="0.01" value="0" class="slider-zeroCentered">
 			<button onclick="setToZero('noiseAngAmp')">Φ</button>
-			<label for="noiseAngAmp">Noise Amplitude (Angle)</label>
+			<label for="noiseAngAmp">Noise Amplitude (angle)</label>
 		</div>
 		<div class="zero-centered">
 			<input type="range" id="noiseRadAmp" min="-0.1" max="0.1" step="0.001" value="0" class="slider-zeroCentered">
 			<button onclick="setToZero('noiseRadAmp')">Φ</button>
-			<label for="noiseRadAmp">Noise Amplitude (Radius)</label>
+			<label for="noiseRadAmp">Noise Amplitude (radius)</label>
 		</div>
 		<div><input type="range" id="noiseFreq" min="0" max="20" step="0.1" value="6" class="slider"><label for="noiseFreq">Noise Frequency</label></div>
 		<div class="zero-centered">
@@ -82,7 +98,16 @@
 			<label for="noiseSpeed">Noise Rotation Speed</label>
 		</div>
 		<div id="spacing"></div>
-		<div><input type="range" id="pulseAmp" min="0" max="5" step="0.01" value="2" class="slider"><label for="pulseAmp">Pulse Amplitude</label></div>
+		<div class="zero-centered">
+			<input type="range" id="pulseAmp" min="-5" max="5" step="0.01" value="2" class="slider-zeroCentered">
+			<button onclick="setToZero('pulseAmp')">Φ</button>
+			<label for="pulseAmp">Pulse Amplitude</label>
+		</div>
+		<div class="zero-centered">
+			<input type="range" id="dirFlips" min="-5" max="5" step="1" value="5" class="slider-zeroCentered">
+			<button onclick="setToZero('dirFlips')">Φ</button>
+			<label for="dirFlips">Direction Flips (pulse-based)</label>
+		</div>
 		<div><input type="range" id="pulseFreq" min="0" max="20" step="0.1" value="10.6" class="slider"><label for="pulseFreq">Pulse Frequency</label></div>
 		<div class="zero-centered">
 			<input type="range" id="pulseSpeed" min="-5" max="5" step="0.01" value="1.5" class="slider-zeroCentered">
@@ -90,17 +115,24 @@
 			<label for="pulseSpeed">Pulse Speed</label>
 		</div>
 		<div><input type="range" id="pulseExp" min="0" max="5" step="0.01" value="2" class="slider"><label for="pulseExp">Pulse Exponent</label></div>
+		<div class="zero-centered">
+			<input type="range" id="pulseHue" min="-1" max="1" step="0.001" value="0"  class="slider-zeroCentered">
+			<button onclick="setToZero('pulseHue')">Φ</button>
+			<label for="pulseHue">Pulse Hue-shift</label>
+		</div>
+		
 		<div id="spacing"></div>
-		<div><input type="range" id="hue" min="0" max="1" step="0.01" value="0.7" class="slider"><label for="hue">Hue</label></div>
-		<div><input type="range" id="sat" min="0" max="1" step="0.01" value="0.8" class="slider"><label for="sat">Saturation</label></div>
-		<div><input type="range" id="val" min="0" max="3" step="0.01" value="1.5" class="slider"><label for="val">Brightness</label></div>
+		<div><input type="range" id="hue" min="0" max="1" step="0.001" value="0.7" class="slider"><label for="hue">Hue</label></div>
+		<div><input type="range" id="sat" min="0" max="2" step="0.01" value="1.2" class="slider"><label for="sat">Saturation</label></div>
+		<div><input type="range" id="val" min="0" max="5" step="0.01" value="1.5" class="slider"><label for="val">Brightness</label></div>
 		<div><input type="range" id="lineExp" min="0" max="5" step="0.01" value="3.0" class="slider"><label for="lineExp">Line Feather</label></div>
 		<div id="spacing"></div>
 		<div><input type="range" id="motionBlur" min="0" max="5" step="0.01" value="0.75" class="slider"><label for="motionBlur">Motion Blur</label></div>
 		<div><input type="range" id="superSample" min="1" max="8" step="1" value="4" class="slider"><label for="superSample">Super Sampling Factor (Blur / AA quality)</label></div>
 		<div id="spacing"></div>
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
-		<div><button id="generateBtn">Generate Visualizer</button></div>
+		<div><button id="generateEditorBtn">Save Project to URL</button></div>
+		<div><button id="generateViewerBtn">Export Viewer to URL</button></div>
 		<div id="spacing"></div>
 		<div id="fps" style="padding-left: 1vw;"></div>
 	</div>
@@ -108,6 +140,7 @@
     <canvas id="myCanvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="spiral.js"></script>
+	<script src="url-params.js"></script>
 	
 	
 	
@@ -152,140 +185,202 @@
 		}
 	</script>
 	
-	
-	
-	
-	
-	
+
 	<script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
-    <script>
+	<script>
 		Coloris({
 			themeMode: 'dark',
 			alpha: true,
-			defaultColor: '#ffffff84'
+			defaultColor: '#ffffff84',
 		});
-		
-        let textContainer = document.getElementById("hypnoText-container");
-        let textInput = document.getElementById("hypnoText-input");
-        let delayInput = document.getElementById("hypnoText-delay-input");
-        let spaceInput = document.getElementById("hypnoText-space-input");
-        let randomizeButton = document.getElementById("hypnoText-randomize-button");
+
+		let textContainer = document.getElementById('hypnoText-container');
+		let textInput = document.getElementById('hypnoText-input');
+		let delayInput = document.getElementById('hypnoText-delay-input');
+		let spaceInput = document.getElementById('hypnoText-space-input');
+		let randomizeButton = document.getElementById('hypnoText-randomize-button');
 		let colorInput = document.querySelector('#hypnoText-color-picker');
 		let sizeInput = document.querySelector('#hypnoText-size-input');
-		
+		let fadeRatioInput = document.querySelector('#hypnoText-fade-input');
+		let blendModeInput = document.getElementById("hypnoText-blendMode-input");
+		let fontPicker = document.getElementById("hypnoText-font-picker");
 
-        let textLines = [];
-        let currentIndex = 0;
-        let delay = 1000; // initialize at default
-        let space = 0; // initialize at default
-        let intervalId;
-        let isRandomized = false;
-		
-		// add an event listener to the color input field
-		colorInput.addEventListener('input', function() {
-			// get the hex value from the input field
+		let textLines = [];
+		let currentIndex = 0;
+		let delay = 1000; // initialize at default
+		let space = 0; // initialize at default
+		let fadeRatio = 0.3; // initialize at default
+		let intervalId;
+
+		colorInput.addEventListener('input', function () {
 			let hexValue = this.value;
-
-			// set the color of the div to the hex value
 			textContainer.style.color = hexValue;
 		});
 
+		sizeInput.addEventListener('input', function () {
+			let sizeValue = this.value + 'vh';
+			textContainer.style.fontSize = sizeValue;
+		});
 
-        // add an event listener to the size input field
-        sizeInput.addEventListener('input', function() {
-            // get the size value from the input field
-            let sizeValue = this.value + 'vh';
-
-            // set the font size of the div to the size value
-            textContainer.style.fontSize = sizeValue;
-        });
-		
 		function restartDisplay() {
-            currentIndex = 0;
-            updateDisplay();
-        }
+			currentIndex = 0;
+			updateDisplay();
+		}
+
+		let mode = 'sequential';
 
 		function updateDisplay() {
-			clearTimeout(intervalId); // Clear the previous timeout
+			clearTimeout(intervalId);
 			if (textLines.length > 0) {
-				setFadeOutInDuration(space * 0.2);
-				fadeOut(() => {
-					textContainer.textContent = textLines[currentIndex];
-					fadeIn(() => {
-						currentIndex = (currentIndex + 1) % textLines.length;
-						if (currentIndex == 0 && isRandomized) {
-							randomizeOrder();
-						}
+				animate(space, () => {
+					let updateDisplayFunction =
+						mode === 'sequential'
+							? updateDisplaySequential
+							: updateDisplayRandom;
+					updateDisplayFunction(() => {
 						intervalId = setTimeout(updateDisplay, delay);
 					});
 				});
 			} else {
-				textContainer.textContent = "";
+				textContainer.textContent = '';
 			}
 		}
 
-		function fadeIn(onComplete) {
-			textContainer.classList.remove("text-fade");
-			setTimeout(onComplete, space * 1000);
+		function updateDisplaySequential(callback) {
+			textContainer.textContent = textLines[currentIndex];
+			currentIndex = (currentIndex + 1) % textLines.length;
+			callback();
 		}
 
-		function fadeOut(onComplete) {
-			textContainer.classList.add("text-fade");
-			setTimeout(onComplete, space * 1000);
+		function updateDisplayRandom(callback) {
+			let randomIndex;
+			do {
+				randomIndex = Math.floor(Math.random() * textLines.length);
+			} while (randomIndex == currentIndex);
+
+			textContainer.textContent = textLines[randomIndex];
+			currentIndex = randomIndex;
+			callback();
 		}
 
-		function setFadeOutInDuration(duration) {
-			textContainer.style.transitionDuration = `${duration}s`;
+		function switchMode(newMode) {
+			mode = newMode;
+			updateDisplay();
 		}
 
-        function randomizeOrder() {
-            let lastText = '';
-            if (textLines.length > 1 && currentIndex > 0) {
-                lastText = textLines[currentIndex - 1];
+		function toggleRandomize() {
+			randomizeButton.classList.toggle('active');
+			mode = mode === 'sequential' ? 'random' : 'sequential';
+		}
+
+		function animate(duration, callback) {
+			let start;
+			let opacity = 1;
+			let fadeDuration = duration * fadeRatio;
+			let blankDuration = duration * (1 - fadeRatio);
+
+			function step(timestamp) {
+				if (start === undefined) start = timestamp;
+				const elapsed = timestamp - start;
+				opacity = 1 - elapsed / (fadeDuration * 1000);
+				textContainer.style.opacity = opacity;
+
+				if (elapsed < fadeDuration * 1000) {
+					requestAnimationFrame(step);
+				} else if (elapsed < (fadeDuration + blankDuration) * 1000) {
+					setTimeout(() => requestAnimationFrame(step), blankDuration * 1000);
+				} else {
+					callback();
+					fadeIn(fadeDuration);
+				}
+			}
+
+			requestAnimationFrame(step);
+		}
+
+		function fadeIn(duration) {
+			let start;
+			let opacity = 0;
+			function step(timestamp) {
+				if (start === undefined) start = timestamp;
+				const elapsed = timestamp - start;
+				opacity = elapsed / (duration * 1000);
+				textContainer.style.opacity = opacity;
+				if (elapsed < duration * 1000) {
+					requestAnimationFrame(step);
+				}
+			}
+			requestAnimationFrame(step);
+		}
+
+		textInput.addEventListener('input', () => {
+			textLines = textInput.value.split('\n');
+			restartDisplay();
+		});
+
+		delayInput.addEventListener('input', () => {
+			delay = parseFloat(delayInput.value) * 1000;
+			updateDisplay();
+		});
+
+		spaceInput.addEventListener('input', () => {
+			space = parseFloat(spaceInput.value);
+		});
+
+		fadeRatioInput.addEventListener('input', () => {
+			fadeRatio = parseFloat(fadeRatioInput.value);
+		});
+
+		randomizeButton.addEventListener('click', () => {
+			toggleRandomize();
+		});
+		
+		blendModeInput.addEventListener("change", () => {
+			textContainer.style.mixBlendMode = blendModeInput.value;
+		});
+		
+		
+		
+        WebFont.load({
+            google: {
+                families: [
+                    'Roboto', 'Roboto+Slab', 'Open+Sans', 'Oswald', 'Montserrat', 'Charm', 'Dancing+Script'
+                ]
+            },
+            active: function() {
+                let fonts = [
+                    'Roboto', 'Roboto Slab', 'Open Sans', 'Oswald', 'Montserrat', 'Charm', 'Dancing Script'
+                ];
+                for (let font of fonts) {
+                    let option = document.createElement('option');
+                    option.value = font;
+                    option.textContent = font;
+                    fontPicker.appendChild(option);
+                }
+
+                fontPicker.addEventListener('change', function() {
+                    let fontFamily = this.value;
+                    WebFont.load({
+                        google: {
+                            families: [fontFamily]
+                        },
+                        active: function() {
+                            textContainer.style.fontFamily = fontFamily;
+                        }
+                    });
+                });
             }
-
-            let randomOrder;
-            do {
-                randomOrder = textLines.slice().sort(() => Math.random() - 0.5);
-            } while (textLines.length > 1 && randomOrder[0] === lastText);
-
-            textLines = randomOrder;
-            updateDisplay();
-        }
-
-        function toggleRandomize() {
-            isRandomized = !isRandomized;
-            randomizeButton.classList.toggle("active", isRandomized);
-            if (isRandomized) {
-                randomizeOrder();
-            } else {
-                textLines = textInput.value.split("\n");
-                updateDisplay();
-            }
-        }
-
-        textInput.addEventListener("input", () => {
-            textLines = textInput.value.split("\n");
-            if (!isRandomized) {
-                updateDisplay();
-            }
         });
-
-        delayInput.addEventListener("input", () => {
-            delay = parseFloat(delayInput.value) * 1000;
-            updateDisplay();
-        });
-
-        spaceInput.addEventListener("input", () => {
-            space = parseFloat(spaceInput.value);
-        });
-
-        randomizeButton.addEventListener("click", () => {
-            toggleRandomize()
-        });
-
-        updateDisplay();
-    </script>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</script>
 	
     <script>
 	    function hideWarning() {
@@ -296,34 +391,34 @@
 			document.getElementById(id).value = 0;
 			document.getElementById(id).dispatchEvent(new Event('input'));
 		}
-		function resetInputs() {
-			document.querySelectorAll("input[type='range']").forEach(function(slider) {
-				slider.value = slider.defaultValue;
-			});
-			document.querySelectorAll("input[type='number']").forEach(function(numField) {
-				numField.value = numField.defaultValue;
-			});
-			document.querySelectorAll("input[type='text']").forEach(function(textfield) {
-				textfield.value = "";
-			});
-			document.querySelectorAll("textarea").forEach(function(textarea) {
-				textarea.value = "";
-			});
-		}
+        function resetInputs() {
+            document.querySelectorAll("input[type='range']").forEach(function(slider) {
+                slider.value = slider.defaultValue;
+            });
+            document.querySelectorAll("input[type='number']").forEach(function(numField) {
+                numField.value = numField.defaultValue;
+            });
+            document.querySelectorAll("input[type='text']").forEach(function(textfield) {
+                textfield.value = "";
+            });
+            document.querySelectorAll("textarea").forEach(function(textarea) {
+                textarea.value = "";
+            });
+            document.querySelectorAll("select").forEach(function(selectElement) {
+                selectElement.selectedIndex = 0;
+            });
+        }
 		function randomizeSliders() {
 		  document.querySelectorAll("input[type='range']").forEach(function (slider) {
 			if (
 			  slider.id !== "superSample" &&
 			  slider.id !== "globalSpeed" &&
-			  slider.id !== "globalScale"
+			  slider.id !== "globalScale" &&
+			  slider.id !== "hypnoText-size-input" &&
+			  slider.id !== "hypnoText-fade-input"
 			) {
 			let randomValue;
-
-			// Adjust noiseFreq slider value to favor very low numbers
-			if (slider.id === "noiseFreq") {
-				const randVal = Math.random();
-				randomValue = randVal * randVal * randVal * slider.max;
-			} else if (Number.isInteger(parseFloat(slider.step))) {
+			if (Number.isInteger(parseFloat(slider.step))) {
 				let range = (slider.max - slider.min) / slider.step;
 				let randomIndex = Math.floor(Math.random() * (range + 1));
 				randomValue = randomIndex * slider.step + parseFloat(slider.min);
@@ -335,7 +430,7 @@
 			    );
 			}
 
-			  // Adjust concentric slider value with 75% chance of being forced to 0 and 25% of randomization
+			  // concentric has 75% chance of being forced to 0
 			  if (slider.id === "concentric") {
 				const randomPercent = Math.random();
 				if (randomPercent < 0.75) {
@@ -343,20 +438,45 @@
 				}
 			  }
 
-			  // Adjust dirFlips slider value with 75% chance of being forced to 0 and 25% of randomization
+			  // dirFlips has 50% chance of being forced to 0
 			  if (slider.id === "dirFlips") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.50) {
+				  randomValue = 0;
+				}
+			  }
+
+			  // lineExp has 25% chance of being forced to 0
+			  if (slider.id === "lineExp") {
 				const randomPercent = Math.random();
 				if (randomPercent < 0.25) {
 				  randomValue = 0;
 				}
 			  }
 
-			  
-			  // Adjust lineExp slider value with 25% chance of being forced to 0 and 75% of randomization
-			  if (slider.id === "lineExp") {
+			  // noiseAngAmp has 70% chance of being forced to 0
+			  if (slider.id === "noiseAngAmp") {
 				const randomPercent = Math.random();
-				if (randomPercent < 0.25) {
+				if (randomPercent < 0.70) {
 				  randomValue = 0;
+				}
+			  }
+
+			  // noiseRadAmp has 70% chance of being forced to 0
+			  if (slider.id === "noiseRadAmp") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.70) {
+				  randomValue = 0;
+				}
+			  }
+
+			  // pulseHue has 50% chance of being forced to 0, otherwise do small value
+			  if (slider.id === "pulseHue") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.50) {
+				  randomValue = 0;
+				} else {
+					randomValue *= 0.3;
 				}
 			  }
 			  
@@ -367,101 +487,42 @@
 			}
 		  });
 		}
-
-		function copyURLToClipboard(url) {
+	</script>
+	
+	<script>
+		const saveProjectButton = document.getElementById('generateEditorBtn');
+		saveProjectButton.addEventListener('click', () => {
+		  // Pass your desired arguments while calling the copyURLToClipboard function
+		  generateURL(true);
+		});
+		
+		const shareViewerButton = document.getElementById('generateViewerBtn');
+		shareViewerButton.addEventListener('click', () => {
+		  // Pass your desired arguments while calling the copyURLToClipboard function
+		  generateURL();
+		});
+		
+		function copyEditorURLToClipboard(url) {
 			navigator.clipboard.writeText(url).then(function() {
-				copyButton.textContent = "Link Copied";
-				copyButton.style = "color: rgba(255, 255, 255, 0.75)";
+				saveProjectButton.textContent = "Link Copied";
+				saveProjectButton.style = "color: rgba(255, 255, 255, 0.75)";
 				setTimeout(() => {
-					copyButton.textContent = "Generate Link";
-					copyButton.style = "";
+					saveProjectButton.textContent = "Save Project to URL";
+					saveProjectButton.style = "";
 				}, 1000);
 			});
 		}
-
-		function generateURL() {
-			const inputList = [
-				{ elementType: 'textarea', inputType: 'textarea', inputId: 'hypnoText-input' },
-				{ elementType: 'input', inputType: 'number', inputId: 'hypnoText-delay-input' },
-				{ elementType: 'input', inputType: 'number', inputId: 'hypnoText-space-input' },
-				{ elementType: 'input', inputType: 'range', inputId: 'hypnoText-size-input' },
-				{ elementType: 'input', inputType: 'text', inputId: 'hypnoText-color-picker' },
-				{ elementType: 'button', inputType: 'button_toggle', inputId: 'hypnoText-randomize-button' },
-				{ elementType: 'input', inputType: 'range', inputId: 'globalSpeed' },
-				{ elementType: 'input', inputType: 'range', inputId: 'globalScale' },
-				{ elementType: 'input', inputType: 'range', inputId: 'freq' },
-				{ elementType: 'input', inputType: 'range', inputId: 'baseSpeed' },
-				{ elementType: 'input', inputType: 'range', inputId: 'dirFlips' },
-				{ elementType: 'input', inputType: 'range', inputId: 'concentric' },
-				{ elementType: 'input', inputType: 'range', inputId: 'concentricSpeed' },
-				{ elementType: 'input', inputType: 'range', inputId: 'noiseAngAmp' },
-				{ elementType: 'input', inputType: 'range', inputId: 'noiseRadAmp' },
-				{ elementType: 'input', inputType: 'range', inputId: 'noiseFreq' },
-				{ elementType: 'input', inputType: 'range', inputId: 'noiseSpeed' },
-				{ elementType: 'input', inputType: 'range', inputId: 'pulseAmp' },
-				{ elementType: 'input', inputType: 'range', inputId: 'pulseFreq' },
-				{ elementType: 'input', inputType: 'range', inputId: 'pulseSpeed' },
-				{ elementType: 'input', inputType: 'range', inputId: 'hue' },
-				{ elementType: 'input', inputType: 'range', inputId: 'sat' },
-				{ elementType: 'input', inputType: 'range', inputId: 'val' },
-				{ elementType: 'input', inputType: 'range', inputId: 'lineExp' },
-				{ elementType: 'input', inputType: 'range', inputId: 'motionBlur' },
-				{ elementType: 'input', inputType: 'range', inputId: 'superSample' },
-			];
-
-			let params = "";
-			inputList.forEach(function (inputInfo) {
-				let inputElement;
-				if (inputInfo.elementType === 'button' || inputInfo.elementType === 'textarea') {
-					inputElement = document.getElementById(inputInfo.inputId);
-				} else {
-					inputElement = document.querySelector(`${inputInfo.elementType}[type='${inputInfo.inputType}'][id='${inputInfo.inputId}']`);
-				}
-
-				if (inputElement) {
-					let value;
-					if (inputInfo.inputType === 'button_toggle') {
-						value = inputElement.classList.contains('active') ? 'true' : 'false';
-					} else if (inputInfo.inputType === 'textarea') {
-						value = encodeURIComponent(inputElement.value.replace(/\r?\n/g, '\r\n'));
-					} else {
-						value = encodeURIComponent(inputElement.value);
-					}
-					params += `${value}&`;
-				}
-			});
-
-			/* 
-				We use is.gd for link shortening, since it's one of few URL shorteners with a nice open API.
-				However, it also doesn't have CORS enabled. That means we have to send our request to is.gd
-				through a CORS proxy. Isn't web development great?
-			*/
-			var url = "https://diamond-dogg.github.io/spiral_generator_prealpha/viewer.html?" + LZString.compressToEncodedURIComponent(params);
-			var shortenerApiUrl = "https://is.gd/create.php?format=simple&url=" + url
-			fetch("https://corsproxy.io/?" + encodeURIComponent(shortenerApiUrl)).then((response) => {
-				if(response.ok) {
-					response.text().then((text) => {
-						let shortUrlCode = text.split("/").slice(-1);
-						copyURLToClipboard("https://diamond-dogg.github.io/spiral_generator_prealpha/short.html?" + shortUrlCode);
-					})
-				}
-				else {
-					console.log("Link shortener (or CORS proxy) returned non-OK!")
-					console.log(response);
-					console.log(response.status);
-					console.log(response.text());
-					copyURLToClipboard(url);
-				}
-			}).catch((error) => {
-				console.log("Error when calling link shortener service:");
-				console.log(error);
-				copyURLToClipboard(url);
+		function copyViewerURLToClipboard(url) {
+			navigator.clipboard.writeText(url).then(function() {
+				shareViewerButton.textContent = "Link Copied";
+				shareViewerButton.style = "color: rgba(255, 255, 255, 0.75)";
+				setTimeout(() => {
+					shareViewerButton.textContent = "Save Viewer to URL";
+					shareViewerButton.style = "";
+				}, 1000);
 			});
 		}
 	</script>
-	<script>
-	  const copyButton = document.getElementById('generateBtn');
-	  copyButton.addEventListener('click', generateURL);
-	</script>
+
 </body>
 </html>
