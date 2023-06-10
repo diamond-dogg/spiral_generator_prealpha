@@ -12,6 +12,7 @@ const fragmentShader = `
 	uniform float GLOBAL_SCALE;
 
     uniform float FREQ;
+	uniform float EXP;
     uniform float BASE_SPEED;
 	uniform int DIR_FLIPS;
 	uniform float CONCENTRIC;
@@ -26,6 +27,7 @@ const fragmentShader = `
     uniform float PULSE_SPEED;
     uniform float PULSE_EXP;
     uniform float PULSE_AMP;
+	uniform float PULSE_HUE;
 	
 	uniform float HUE;
 	uniform float SAT;
@@ -93,10 +95,11 @@ const fragmentShader = `
 			
 		// Spiral
 		polar.y += tan(polar.x * CONCENTRIC + globalTime * CONCENTRIC_SPEED * CONCENTRIC); // add concentric circles
-		polar.y += polar.x * FREQ + globalTime * BASE_SPEED; // twist the uv space around the origin (basis of the spiral)
+		polar.y += customPow(polar.x, EXP) * FREQ + globalTime * BASE_SPEED; // twist the uv space around the origin (basis of the spiral)
 		float pulse = sin(polar.x * PULSE_FREQ + globalTime * PULSE_SPEED); // create pulse factor
 		polar.y -= customPow(pulse, PULSE_EXP) * PULSE_AMP; // contract/expand based on pulse factor
-		polar.y += (atan(p.y,p.x) - pulse*5.0) * float(DIR_FLIPS); // cool and weird effect (happy accident)
+		polar.y += (atan(p.y,p.x) - pulse*PULSE_AMP) * float(DIR_FLIPS); // cool and weird effect (happy accident)
+		float newHue = HUE + pulse * PULSE_HUE; // modulate hue with pulse
 		
 		// convert spiralized polar coords back to cartesian
 		p = p2c(polar);
@@ -110,8 +113,8 @@ const fragmentShader = `
 		bright = customPow(bright, LINE_EXP); // exponent (sharpness)
 		bright = clamp(bright, 0.0, 1.0); // clamp final brightness
 		
-		vec3 inColor = hsv2rgb(vec3(HUE, SAT*0.5, VAL)); // color of inner line
-		vec3 outColor = hsv2rgb(vec3(HUE, SAT, VAL)); // color of glow around line
+		vec3 inColor = hsv2rgb(vec3(newHue, SAT*0.5, VAL)); // color of inner line
+		vec3 outColor = hsv2rgb(vec3(newHue, SAT, VAL)); // color of glow around line
 		vec3 col = mix(outColor, inColor, bright); // interpolate between in/out colors
 		col *= bright; // black background
 
@@ -174,6 +177,8 @@ handleValueChange('concentric', 'CONCENTRIC');
 handleValueChange('concentricSpeed', 'CONCENTRIC_SPEED');
 handleValueChange('motionBlur', 'MOTION_BLUR');
 handleValueChange('superSample', 'SUPERSAMPLING_FACTOR');
+handleValueChange('pulseHue', 'PULSE_HUE');
+handleValueChange('exp', 'EXP');
 
 
 const uniforms = {
@@ -196,10 +201,12 @@ const uniforms = {
     CONCENTRIC: { value: 0.0 },
 	CONCENTRIC_SPEED: { value: 0.0 },
 	HUE: { value: 0.7 },
-	SAT: { value: 0.8 },
+	SAT: { value: 1.2 },
 	VAL: { value: 1.5 },
     MOTION_BLUR: { value: 0.75 },
 	SUPERSAMPLING_FACTOR: { value: 4 },
+	PULSE_HUE: { value: 0 },
+	EXP: { value: 1.0 },
 };
 
 const material = new THREE.ShaderMaterial({
@@ -221,9 +228,9 @@ scene.add(mesh);
 let advicePage = "gpu-error.html"
 let prevTime = 0;
 let terribleFPS = 10; // FPS for sending to advice page
-let thresholdFPS = 50; // FPS for halving resolution
+let thresholdFPS = 45 ; // FPS threshold for enabling performance mode
 let scaleFactor = 1; // Initialize the scaling factor to 1
-let minScaleFactor = 0.5; // Minimum scaling factor to prevent extremely low resolution               CHANGE BACK TO 0.5
+let minScaleFactor = 0.5; // performance mode scaling factor
 let frameCount = 0; // Count number of frames in sample period
 let samplePeriod = 3; // Seconds per sample period
 let sumFPS = 0; // Sum of FPS values in sample period
