@@ -12,12 +12,13 @@
 			<button id="continueButton" onclick="hideWarning(); restartDisplay();">Continue</button>
 		</div>
 	</div>
-
     <script type="text/javascript">
         if(document.location.search.length < 2) {
             window.location.href = "https://diamond-dogg.github.io/spiral_generator_prealpha/"
         }
         else {
+            // bounce to an "actual" link shortener, which then redirects to our viewer
+            window.location.href = "https://is.gd/" + document.location.search.substring(1);
             let shortenedUrl = "https://is.gd/" + document.location.search.substring(1);
             fetch("https://corsproxy.io/?" + encodeURIComponent(shortenedUrl)).then((response) => {
                 console.log(response.url.substring(0, 57));
