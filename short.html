@@ -1,42 +1,41 @@
 <!DOCTYPE html>
 <head>
     <title>Spiral Viewer</title>
-	<link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-	<div class="warning-modal-full-page" id="warningModal-fullPage">
-		<div class="warning-modal">
-			<h1>Seizure Warning</h1>
-			<p>This website contains flashing images that might trigger seizures for people with photosensitive epilepsy.</p>
-			<p>If you have a history of epilepsy or seizures, please avoid this site like the plague.</p>
-			<button id="continueButton" onclick="hideWarning(); restartDisplay();">Continue</button>
-		</div>
-	</div>
+    <div class="warning-modal-full-page" id="warningModal-fullPage">
+        <div class="warning-modal">
+            <h1>Seizure Warning</h1>
+            <p>This website contains flashing images that might trigger seizures for people with photosensitive epilepsy.</p>
+            <p>If you have a history of epilepsy or seizures, please avoid this site like the plague.</p>
+            <button id="continueButton" onclick="hideWarning(); restartDisplay();">Continue</button>
+        </div>
+    </div>
     <script type="text/javascript">
         if(document.location.search.length < 2) {
-            window.location.href = "https://diamond-dogg.github.io/spiral_generator_prealpha/"
+            window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/");
         }
         else {
             // bounce to an "actual" link shortener, which then redirects to our viewer
-            window.location.href = "https://is.gd/" + document.location.search.substring(1);
             let shortenedUrl = "https://is.gd/" + document.location.search.substring(1);
             fetch("https://corsproxy.io/?" + encodeURIComponent(shortenedUrl)).then((response) => {
                 console.log(response.url.substring(0, 57));
                 if(response.ok) {
                     if(response.url.length > 56 && response.url.substring(0, 57) == "https://diamond-dogg.github.io/spiral_generator_prealpha/") {
-                        window.location.href = response.url;
+                        window.location.replace(response.url);
                     }
                     else {
                         console.log("Invalid redirect found! Going back to home...");
-                        window.location.href = "https://diamond-dogg.github.io/spiral_generator_prealpha/";
+                        window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/");
                     }
                 }
                 else {
                     console.log("Redirect URL returned non-OK status code " + response.ok);
-                    window.location.href = "https://diamond-dogg.github.io/spiral_generator_prealpha/";
+                    window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/");
                 }
             }).catch((error) => {
-                window.location.href = "https://diamond-dogg.github.io/spiral_generator_prealpha/"
+                window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/")
             });
         }
     </script>
