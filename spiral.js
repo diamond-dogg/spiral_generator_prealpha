@@ -232,7 +232,7 @@ const material = new THREE.ShaderMaterial({
 const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
-let advicePage = "gpu-error.html";
+let advicePage = "gpu-error.html"; // advice page for when fps is unacceptable
 let prevTime = performance.now() * 0.001;
 let terribleFPS = 10; // FPS for sending to advice page
 let thresholdFPS = 40; // FPS threshold for enabling performance mode
