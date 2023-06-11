@@ -234,8 +234,8 @@ scene.add(mesh);
 
 let advicePage = "gpu-error.html"; // advice page for when fps is unacceptable
 let prevTime = performance.now() * 0.001;
-let terribleFPS = 10; // FPS for sending to advice page
-let thresholdFPS = 40; // FPS threshold for enabling performance mode
+let terribleFPS = 8; // FPS for sending to advice page
+let thresholdFPS = 30; // FPS threshold for enabling performance mode
 let scaleFactor = 1; // Initialize the scaling factor to 1
 let performanceScaleFactor = 0.3; // performance mode scaling factor
 let frameCount = 0; // Count number of frames in sample period
