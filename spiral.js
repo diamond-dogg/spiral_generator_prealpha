@@ -148,11 +148,18 @@ const fragmentShader = `
 
 
 // function to handle slider and color wheel values change
-function handleValueChange(elementId, uniformName) {
-    const element = document.getElementById(elementId);
-    element.addEventListener('input', () => {
-        uniforms[uniformName].value = parseFloat(element.value);
-    });
+function handleValueChange(id, uniform) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.addEventListener('input', function () {
+            const value = parseFloat(element.value);
+            if (uniform === "SUPERSAMPLING_FACTOR" && scaleFactor === performanceScaleFactor && value > 2) {
+                uniforms[uniform].value = 2;
+            } else {
+                uniforms[uniform].value = value;
+            }
+        });
+    }
 }
 
 
@@ -225,12 +232,12 @@ const material = new THREE.ShaderMaterial({
 const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
-let advicePage = "gpu-error.html"
-let prevTime = 0;
+let advicePage = "gpu-error.html";
+let prevTime = performance.now() * 0.001;
 let terribleFPS = 10; // FPS for sending to advice page
-let thresholdFPS = 45 ; // FPS threshold for enabling performance mode
+let thresholdFPS = 45; // FPS threshold for enabling performance mode
 let scaleFactor = 1; // Initialize the scaling factor to 1
-let minScaleFactor = 0.5; // performance mode scaling factor
+let performanceScaleFactor = 0.5; // performance mode scaling factor
 let frameCount = 0; // Count number of frames in sample period
 let samplePeriod = 3; // Seconds per sample period
 let sumFPS = 0; // Sum of FPS values in sample period
@@ -248,43 +255,49 @@ function resizeRendererToDisplaySize(renderer) {
     return needResize;
 }
 
-function render(time) {
-    time *= 0.001;
-    uniforms.iTime.value = time;
+function render() {
+  const currentTime = performance.now() * 0.001;
+  uniforms.iTime.value = currentTime;
 
-    // Code for FPS display
-    const deltaTime = time - prevTime;
-    const FPS = 1 / deltaTime;
-    prevTime = time;
-    sumFPS += FPS;
-    frameCount += 1;
-	
-    const averageFPS = sumFPS / frameCount;
-    
-    if (!resolutionAdapted && time >= samplePeriod && time <= samplePeriod+1) {
-		if (averageFPS < terribleFPS) {
-			window.location = advicePage;
-			scaleFactor = 0.1;
-            resolutionAdapted = true;
-		} else if (averageFPS < thresholdFPS) {
-            scaleFactor = minScaleFactor;
-            resolutionAdapted = true;
-        }
-        
-        frameCount = 0;
-        sumFPS = 0;
+  // Code for FPS display
+  let deltaTime;
+  if (prevTime === 0) {
+    deltaTime = 1 / 60; // Assume 60 FPS for first frame
+  } else {
+    deltaTime = currentTime - prevTime;
+  }
+  const FPS = 1 / deltaTime;
+  prevTime = currentTime;
+  sumFPS += FPS;
+  frameCount += 1;
+
+  const averageFPS = sumFPS / frameCount;
+
+  if (!resolutionAdapted && currentTime >= samplePeriod && currentTime <= samplePeriod + 1) {
+    if (averageFPS < terribleFPS) {
+      window.location = advicePage;
+      scaleFactor = 0.1;
+      resolutionAdapted = true;
+    } else if (averageFPS < thresholdFPS) {
+      scaleFactor = performanceScaleFactor;
+      resolutionAdapted = true;
     }
 
-    // Display FPS and average FPS in a HTML element
-    document.getElementById("fps").innerHTML = "Average FPS: " + Math.round(averageFPS);
+    frameCount = 0;
+    sumFPS = 0;
+  }
 
-    if (resizeRendererToDisplaySize(renderer)) {
-        const canvas = renderer.domElement;
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
-    }
+  // Display FPS and average FPS in a HTML element
+  document.getElementById("fps").innerHTML = "Average FPS: " + Math.round(averageFPS);
 
-    renderer.render(scene, camera);
-    requestAnimationFrame(render);
+  if (resizeRendererToDisplaySize(renderer)) {
+    const canvas = renderer.domElement;
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.updateProjectionMatrix();
+  }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
 }
+
 requestAnimationFrame(render);
