@@ -101,10 +101,10 @@ select {
 	resize: none;
 }
 
-#hypnoText-delay-input, #hypnoText-space-input {
+input[type="number"] {
 	background-color: rgba(0,0,0,0.5);
 	color: rgba(255,255,255,0.5);
-	width: 25%;
+	width: 5vh;
 	margin-bottom: 1vh;
 }
 
@@ -119,11 +119,31 @@ select {
 	margin-top: 2vh;
 }
 
-#hypnoText-randomize-button.active {
+button[type="button_toggle"].active {
 	color: white;
+	text-shadow: 0 0 5px rgba(255,255,255,0.5);
 }
 
+#looping-controls {
+	font-size: calc(0.8vw);
+	background-color: rgba(0,0,0,0.5);
+	padding: 1vw;
+	color: rgba(255,255,255,0.5);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 40%;
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
 
+.vertical-label-set {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 #spiral-controls {
 	background-color: rgba(0,0,0,0.5);
@@ -136,6 +156,14 @@ select {
 #spacing {
 	padding: calc(0.5vw);
 }
+
+
+
+
+
+
+
+
 
 input[type="range"] {
 	font-size: calc(0.8vw);
@@ -280,4 +308,4 @@ input[type="range"] {
 
 .warning-modal button:hover {
 	background-color: #ff7f7f;
-}
+	}
