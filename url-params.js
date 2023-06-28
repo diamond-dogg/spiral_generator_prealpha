@@ -30,6 +30,8 @@ const inputList = [
 	{ elementType: 'input', inputType: 'range', inputId: 'exp' },
 	{ elementType: 'select', inputType: 'select', inputId: 'hypnoText-blendMode-input'},
 	{ elementType: 'select', inputType: 'select', inputId: 'hypnoText-font-picker'},
+	{ elementType: 'input', inputType: 'text', inputId: 'backgroundImageInput'},
+	{ elementType: 'input', inputType: 'range', inputId: 'backgroundImageOpacity'},
 ];
 
 function generateURL(edit = false) {
@@ -145,7 +147,11 @@ function getUrlParams() {
             let inputElement;
             if (inputInfo.elementType === 'button' || inputInfo.elementType === 'textarea') {
                 inputElement = document.getElementById(inputInfo.inputId);
-            } else {
+            } else if (inputInfo.inputId == "backgroundImageInput") {
+				document.getElementById("backgroundImage").src = decodeURIComponent(value);
+			} else if (inputInfo.inputId == "backgroundImageOpacity") {
+				document.getElementById("backgroundImage").style.opacity = decodeURIComponent(value);
+			} else {
                 inputElement = document.querySelector(`${inputInfo.elementType}[type='${inputInfo.inputType}'][id='${inputInfo.inputId}']`);
             }
 
