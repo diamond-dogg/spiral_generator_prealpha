@@ -147,13 +147,15 @@ function getUrlParams() {
             let inputElement;
             if (inputInfo.elementType === 'button' || inputInfo.elementType === 'textarea') {
                 inputElement = document.getElementById(inputInfo.inputId);
-            } else if (inputInfo.inputId == "backgroundImageInput") {
+            } else {
+                inputElement = document.querySelector(`${inputInfo.elementType}[type='${inputInfo.inputType}'][id='${inputInfo.inputId}']`);
+            }
+
+			if (inputInfo.inputId == "backgroundImageInput") {
 				document.getElementById("backgroundImage").src = decodeURIComponent(value);
 			} else if (inputInfo.inputId == "backgroundImageOpacity") {
 				document.getElementById("backgroundImage").style.opacity = decodeURIComponent(value);
-			} else {
-                inputElement = document.querySelector(`${inputInfo.elementType}[type='${inputInfo.inputType}'][id='${inputInfo.inputId}']`);
-            }
+			}
 
             if (inputElement) {
                 let decodedValue = decodeURIComponent(value);
