@@ -151,11 +151,11 @@ function getUrlParams() {
                 inputElement = document.querySelector(`${inputInfo.elementType}[type='${inputInfo.inputType}'][id='${inputInfo.inputId}']`);
             }
 
-			if (inputInfo.inputId == "backgroundImageInput") {
-				document.getElementById("backgroundImage").src = decodeURIComponent(value);
-			} else if (inputInfo.inputId == "backgroundImageOpacity") {
-				document.getElementById("backgroundImage").style.opacity = decodeURIComponent(value);
-			}
+	    if (inputInfo.inputId == "backgroundImageInput") {
+	        document.getElementById("backgroundImage").src = decodeURIComponent(value);
+	    } else if (inputInfo.inputId == "backgroundImageOpacity") {
+	        document.getElementById("backgroundImage").style.opacity = decodeURIComponent(value);
+	    }
 
             if (inputElement) {
                 let decodedValue = decodeURIComponent(value);
