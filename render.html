@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Spiral Editor</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+	<script src="unityShader-converter.js"></script>
+	<script src="CCapture.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+	<style>
+		#hypnoText-controls, #spiral-controls, #looping-controls {
+			display: none;
+		}
+	</style>
+
+	<!--
+		In an ideal world, we could load this straight from the GitHub page of lz-string: https://github.com/pieroxy/lz-string/tree/master
+		However, a world with hyperactive CORB is not an ideal world.
+	-->
+	<script type="text/javascript" src="lz-string.min.js"></script>
+</head>
+<body onload="resetInputs(); getUrlParams(); generateRenderSequence();">
+	<div class="warning-modal-full-page" id="warningModal-fullPage">
+		<div class="warning-modal">
+			<h1>Seizure Warning</h1>
+			<p>This website contains flashing images that might trigger seizures for people with photosensitive epilepsy.</p>
+			<p>If you have a history of epilepsy or seizures, please avoid this site like the plague.</p>
+			<button id="continueButton" onclick="hideWarning(); restartDisplay();">Continue</button>
+		</div>
+	</div>
+	
+	
+	
+	<div id="render-settings-menu" style="display: none">
+		<h1>Render Settings</h1>
+		<p>Force Looping should be enabled when rendering your spiral. Render length is defined by Loop Period.<br>GIFs should be kept low-resolution and low-fps to keep file-size reasonable for web-viewing.</p>
+		<br>
+		<button id="exit-render-settings-button" style="font-size: 15px; position: absolute; top: 10px; right: 10px;" onclick="hideElement('render-settings-menu')">X</button>
+		<label style="font-size: 15px">Format: </label>
+		<select id="render-format" style="width: 160px; height: 24px; font-size: 15px;">
+			<option value="gif">GIF</option>
+			<option value="jpg">JPG Sequence</option>
+		</select>
+		<label style="font-size: 15px; margin-left: 30px;">Width: </label><input id="render-width" type="number" min="10" step="1" value="960" style="width: 60px; height: 24px; font-size: 15px;">
+		<label style="font-size: 15px; margin-left: 30px;">Height: </label><input id="render-height" type="number" min="10" step="1" value="540" style="width: 60px; height: 24px; font-size: 15px;">
+		<label style="font-size: 15px; margin-left: 30px;">FPS: </label><input id="render-framerate" type="number" min="5" step="1" value="15" style="width: 60px; height: 24px; font-size: 15px;">
+		<button id="renderBtn" style="font-size: 15px; margin-left: 60px;" onclick="hideElement('render-settings-menu');">Render</button>
+	</div>
+	
+	
+	
+	
+	
+	
+	<div id="hypnoText-container"></div>
+	<div id="hypnoText-controls">
+        <textarea id="hypnoText-input" placeholder="Enter subliminals here:&#10;(empty lines = blank delay)"></textarea>
+		<div><input id="hypnoText-delay-input" type="number" min="0" step="0.1" value="1.0"><label style="font-size: 1vh"> Delay (seconds)</label></div>
+        <div><input id="hypnoText-space-input" type="number" min="0" step="0.1" value="0.0"><label style="font-size: 1vh"> Spacing (seconds)</label></div>
+		<div><select id="hypnoText-font-picker" type="select" style="margin-bottom: 2vh"></select><label style="font-size: 1vh"> Font</label></div>
+		<div><input type="range" id="hypnoText-fade-input" min="0.01" max="0.99" step="0.01" value="0.3" class="slider" style="width: 70%; margin-bottom: 2vh;"><label style="position: absolute; font-size: 1vh; margin-top: -0.7vh; margin-left: 0.2vh;">Spacing Fade</label></div>
+		<div><input type="range" id="hypnoText-size-input" min="0.5" max="50" step="0.01" value="10" class="slider" style="width: 70%; margin-bottom: 2vh;"><label style="position: absolute; font-size: 1vh; margin-top: -0.1vh; margin-left: 0.2vh;">Size</label></div>
+		<input id="hypnoText-color-picker" type="text" value="#ffffff84" data-coloris>
+		<div style="margin-top: 1vh;">
+            <select id="hypnoText-blendMode-input" type="select">
+				<option value="normal">Normal</option>
+                <option value="multiply">Multiply</option>
+                <option value="screen">Screen</option>
+                <option value="overlay">Overlay</option>
+				<option value="color-dodge">Color Dodge</option>
+                <option value="difference">Difference</option>
+                <option value="color">Color</option>
+                <option value="luminosity">Luminosity</option>
+            </select>
+			<label style="font-size: 1vh"> Blend Mode</label>
+        </div>
+        <button id="hypnoText-randomize-button" type="button_toggle">Randomize Order</button>
+    </div>
+	
+	
+	
+	
+	
+	
+	<div id="spiral-controls">
+		<div class="zero-centered">
+			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1" class="slider-zeroCentered">
+			<button onclick="setToZero('globalSpeed')">Φ</button>
+			<label for="globalSpeed">Global Speed</label>
+		</div>
+		<div><input type="range" id="globalScale" min="0.4" max="5" step="0.01" value="1" class="slider"><label for="globalScale">Global Scale</label></div>
+		<div id="spacing"></div>
+		<div><input type="range" id="freq" min="0" max="60" step="0.1" value="20" class="slider"><label for="freq">Base Frequency</label></div>
+		<div><input type="range" id="exp" min="1" max="2" step="0.01" value="1" class="slider"><label for="exp">Base Exponent</label></div>
+		<div class="zero-centered">
+			<input type="range" id="baseSpeed" min="-20" max="20" step="0.1" value="5" class="slider-zeroCentered">
+			<button onclick="setToZero('baseSpeed')">Φ</button>
+			<label for="baseSpeed">Base Speed</label>
+		</div>
+		<div class="zero-centered">
+			<input type="range" id="concentric" min="-10" max="10" step="0.05" value="0" class="slider-zeroCentered">
+			<button onclick="setToZero('concentric')">Φ</button>
+			<label for="concentric">Concentric</label>
+		</div>
+		<div class="zero-centered">
+			<input type="range" id="concentricSpeed" min="-1" max="1" step="0.002" value="0" class="slider-zeroCentered">
+			<button onclick="setToZero('concentricSpeed')">Φ</button>
+			<label for="concentric">Concentric Speed</label>
+		</div>
+		<div id="spacing"></div>
+		<div class="zero-centered">
+			<input type="range" id="noiseAngAmp" min="-5" max="5" step="0.01" value="0" class="slider-zeroCentered">
+			<button onclick="setToZero('noiseAngAmp')">Φ</button>
+			<label for="noiseAngAmp">Noise Amplitude (angle)</label>
+		</div>
+		<div class="zero-centered">
+			<input type="range" id="noiseRadAmp" min="-0.1" max="0.1" step="0.001" value="0" class="slider-zeroCentered">
+			<button onclick="setToZero('noiseRadAmp')">Φ</button>
+			<label for="noiseRadAmp">Noise Amplitude (radius)</label>
+		</div>
+		<div><input type="range" id="noiseFreq" min="0" max="20" step="0.1" value="6" class="slider"><label for="noiseFreq">Noise Frequency</label></div>
+		<div class="zero-centered">
+			<input type="range" id="noiseSpeed" min="-1" max="1" step="0.01" value="-0.2" class="slider-zeroCentered">
+			<button onclick="setToZero('noiseSpeed')">Φ</button>
+			<label for="noiseSpeed">Noise Rotation Speed</label>
+		</div>
+		<div id="spacing"></div>
+		<div class="zero-centered">
+			<input type="range" id="pulseAmp" min="-5" max="5" step="0.01" value="2" class="slider-zeroCentered">
+			<button onclick="setToZero('pulseAmp')">Φ</button>
+			<label for="pulseAmp">Pulse Amplitude</label>
+		</div>
+		<div class="zero-centered">
+			<input type="range" id="dirFlips" min="-5" max="5" step="1" value="5" class="slider-zeroCentered">
+			<button onclick="setToZero('dirFlips')">Φ</button>
+			<label for="dirFlips">Direction Flips (pulse-based)</label>
+		</div>
+		<div><input type="range" id="pulseFreq" min="0" max="20" step="0.1" value="10.6" class="slider"><label for="pulseFreq">Pulse Frequency</label></div>
+		<div class="zero-centered">
+			<input type="range" id="pulseSpeed" min="-5" max="5" step="0.01" value="1.5" class="slider-zeroCentered">
+			<button onclick="setToZero('pulseSpeed')">Φ</button>
+			<label for="pulseSpeed">Pulse Speed</label>
+		</div>
+		<div><input type="range" id="pulseExp" min="0" max="5" step="0.01" value="2" class="slider"><label for="pulseExp">Pulse Exponent</label></div>
+		<div class="zero-centered">
+			<input type="range" id="pulseHue" min="-1" max="1" step="0.001" value="0"  class="slider-zeroCentered">
+			<button onclick="setToZero('pulseHue')">Φ</button>
+			<label for="pulseHue">Pulse Hue-shift</label>
+		</div>
+		
+		<div id="spacing"></div>
+		<div><input type="range" id="hue" min="0" max="1" step="0.001" value="0.7" class="slider"><label for="hue">Hue</label></div>
+		<div><input type="range" id="sat" min="0" max="2" step="0.01" value="1.2" class="slider"><label for="sat">Saturation</label></div>
+		<div><input type="range" id="val" min="0" max="5" step="0.01" value="1.5" class="slider"><label for="val">Brightness</label></div>
+		<div><input type="range" id="lineExp" min="0" max="5" step="0.01" value="3.0" class="slider"><label for="lineExp">Line Feather</label></div>
+		<div id="spacing"></div>
+		<div><input type="range" id="motionBlur" min="0" max="5" step="0.01" value="0.75" class="slider"><label for="motionBlur">Motion Blur</label></div>
+		<div><input type="range" id="superSample" min="1" max="8" step="1" value="4" class="slider"><label for="superSample">Super Sampling Factor (Blur / AA quality)</label></div>
+		<div id="spacing"></div>
+		<div><button onclick="randomizeSliders()">Randomize</button></div>
+		<div><button id="generateEditorBtn">Save Project to URL</button></div>
+		<div><button id="generateViewerBtn">Export Viewer to URL</button></div>
+		<div><button id="generateUnityBtn" onclick="generateUnityShader()">Export Spiral to Unity Shader (no text)</button></div>
+		<div><button id="open-render-settings-button" onclick="showElement('render-settings-menu')">Render Spiral (text-support hopefully coming soon)</button></div>
+		<a id="downloadAnchor" style="display: none;"></a>
+		<!-- <div id="spacing"></div>
+		<div id="fps" style="padding-left: 1vw;"></div> -->
+	</div>
+	
+    <div id="looping-controls">
+		<div>
+            <button id="forceLoop-button" type="button_toggle">Force Looping</button>
+			<input id="forceLoop-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
+        </div>
+        <div class="vertical-label-set">
+            <label style="font-size: 1vh; margin-bottom: 0.2vh">Loop Period</label>
+            <input id="loopPeriod" type="number" min="0.1" step="0.1" value="10" onblur="checkLoopTimes()">
+        </div>
+        <div class="vertical-label-set">
+            <label style="font-size: 1vh; margin-bottom: 0.2vh">Loop Transition Time</label>
+            <input id="loop-transTime" type="number" min="0.1" step="0.1" value="5" onblur="checkLoopTimes()">
+        </div>
+		<div class="vertical-label-set">
+            <label style="font-size: 1vh; margin-bottom: 0.2vh">Transition Edge Feather</label>
+            <input type="range" id="loop-edgeFeather" min="0" max="1" step="0.001" value="0.4" class="slider" style="width: 10vh;">
+        </div>
+		<div>
+			<button id="reverseTransDir-button" type="button_toggle" style="font-size: 1vh;">Reverse Transition Direction</button>
+			<input id="reverseTransDir-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
+		</div>
+    </div>
+	
+	
+	
+    <button class="fullscreen" id="fullscreenButton" onclick="toggleFullScreen()" style="display: none;">fullscreen</button>
+    <canvas id="spiralCanvas"></canvas>
+	<script src="spiral-record.js"></script>
+	<script src="url-params.js"></script>
+	
+
+	<script>
+	function hideElement(elementID) {
+		var element = document.getElementById(elementID);
+		if (element) {
+			element.style.display = "none";
+		}
+	}
+
+	function showElement(elementID) {
+		var element = document.getElementById(elementID);
+		if (element) {
+			element.style.display = ""; // This will reset the display property to its default value
+		}
+	}
+	</script>
+	
+	
+	<script>
+		let timer;
+		let isElementHovered = false;
+
+		document.addEventListener('mousemove', () => {
+			clearTimeout(timer);
+			if (document.fullscreenElement) {
+				document.getElementById('fullscreenButton').style.display = 'block';
+				document.querySelector('body').style.cursor = 'auto';
+				timer = setTimeout(() => {
+					document.getElementById('fullscreenButton').style.display = isElementHovered ? 'block' : 'none';
+					document.querySelector('body').style.cursor = 'none';
+				}, 2000);
+			}
+		});
+
+		document.getElementById('fullscreenButton').addEventListener('mouseover', () => {
+			isElementHovered = true;
+		});
+
+		document.getElementById('fullscreenButton').addEventListener('mouseout', () => {
+			isElementHovered = false;
+		});
+
+		function toggleFullScreen() {
+			if (!document.fullscreenElement) {
+				document.documentElement.requestFullscreen();
+				document.getElementById('fullscreenButton').style.display = 'none';
+			} else {
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+					document.getElementById('fullscreenButton').style.display = 'block';
+					document.querySelector('body').style.cursor = 'auto';
+					clearTimeout(timer);
+				}
+			}
+		}
+	</script>
+	
+
+	<script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+	
+	<script>
+		let forceLoopButton = document.getElementById('forceLoop-button');
+		let forceLoopActualNum = document.getElementById('forceLoop-actualNum');
+		let reverseTransDirButton = document.getElementById('reverseTransDir-button');
+		let reverseTransDirActualNum = document.getElementById('reverseTransDir-actualNum');
+
+		forceLoopButton.addEventListener('click', () => {
+			forceLoopButton.classList.toggle('active');
+			forceLoopActualNum.value = forceLoopButton.classList.contains('active') ? 1 : 0;
+			forceLoopActualNum.dispatchEvent(new Event("input"));
+		});
+
+		reverseTransDirButton.addEventListener('click', () => {
+			reverseTransDirButton.classList.toggle('active');
+			reverseTransDirActualNum.value = reverseTransDirButton.classList.contains('active') ? 1 : 0;
+			reverseTransDirActualNum.dispatchEvent(new Event("input"));
+		});
+
+		forceLoopActualNum.addEventListener('input', () => {
+			if (forceLoopActualNum.value == 1 && !forceLoopButton.classList.contains('active')) {
+				forceLoopButton.classList.add('active');
+			} else if (forceLoopActualNum.value == 0 && forceLoopButton.classList.contains('active')) {
+				forceLoopButton.classList.remove('active');
+			}
+		});
+
+		reverseTransDirActualNum.addEventListener('input', () => {
+			if (reverseTransDirActualNum.value == 1 && !reverseTransDirButton.classList.contains('active')) {
+				reverseTransDirButton.classList.add('active');
+			} else if (reverseTransDirActualNum.value == 0 && reverseTransDirButton.classList.contains('active')) {
+				reverseTransDirButton.classList.remove('active');
+			}
+		});
+	</script>
+	
+
+	
+	<script>
+		Coloris({
+			themeMode: 'dark',
+			alpha: true,
+			defaultColor: '#ffffff84',
+		});
+
+		let textContainer = document.getElementById('hypnoText-container');
+		let textInput = document.getElementById('hypnoText-input');
+		let delayInput = document.getElementById('hypnoText-delay-input');
+		let spaceInput = document.getElementById('hypnoText-space-input');
+		let randomizeButton = document.getElementById('hypnoText-randomize-button');
+		let colorInput = document.querySelector('#hypnoText-color-picker');
+		let sizeInput = document.querySelector('#hypnoText-size-input');
+		let fadeRatioInput = document.querySelector('#hypnoText-fade-input');
+		let blendModeInput = document.getElementById("hypnoText-blendMode-input");
+		let fontPicker = document.getElementById("hypnoText-font-picker");
+		
+		let loopPeriod = document.getElementById("loopPeriod");
+		let loopTrans = document.getElementById("loop-transTime");
+
+		let textLines = [];
+		let currentIndex = 0;
+		let delay = 1000; // initialize at default
+		let space = 0; // initialize at default
+		let fadeRatio = 0.3; // initialize at default
+		let intervalId;
+		
+		
+		
+		
+		function updateLoopPeriod() {
+			if (textLines.length > 1) { // should really be > 0, but that causes weird glitch where it disables loopPeriod when loading in a save without text, so this works for now, nobody just has 1 line of text anyway lmao
+				loopPeriod.value = textLines.length * (parseInt(delayInput.value) + parseInt(spaceInput.value));
+				loopPeriod.disabled = true;
+				loopPeriod.dispatchEvent(new Event('input'));
+				checkLoopTimes();
+			} else {
+				loopPeriod.disabled = false;
+			}
+		}
+		
+		
+				
+		function checkLoopTimes() {
+			if (parseInt(loopTrans.value) > parseInt(loopPeriod.value)) {
+				loopTrans.value = parseInt(loopPeriod.value);
+				loopTrans.dispatchEvent(new Event('input'));
+			}
+		}
+		
+		textInput.addEventListener("input", function (event) {
+			textLines = event.target.value.split("\n"); // Assuming textLines is an array of lines from the input
+
+			if (textLines.length === 1 && textLines[0] === "") {
+				// If the input is empty or has only an empty line, clear textLines
+				textLines = [];
+			}
+
+			updateLoopPeriod();
+		});
+		
+		
+		delayInput.addEventListener("input", updateLoopPeriod);
+		spaceInput.addEventListener("input", updateLoopPeriod);
+		
+		
+		
+		
+
+		colorInput.addEventListener('input', function () {
+			let hexValue = this.value;
+			textContainer.style.color = hexValue;
+		});
+
+		sizeInput.addEventListener('input', function () {
+			let sizeValue = this.value + 'vh';
+			textContainer.style.fontSize = sizeValue;
+		});
+
+		function restartDisplay() {
+			currentIndex = 0;
+			updateDisplay();
+		}
+
+		let mode = 'sequential';
+
+		function updateDisplay() {
+			clearTimeout(intervalId);
+			if (textLines.length > 0) {
+				animate(space, () => {
+					let updateDisplayFunction =
+						mode === 'sequential'
+							? updateDisplaySequential
+							: updateDisplayRandom;
+					updateDisplayFunction(() => {
+						intervalId = setTimeout(updateDisplay, delay);
+					});
+				});
+			} else {
+				textContainer.textContent = '';
+			}
+		}
+
+		function updateDisplaySequential(callback) {
+			textContainer.textContent = textLines[currentIndex];
+			currentIndex = (currentIndex + 1) % textLines.length;
+			callback();
+		}
+
+		function updateDisplayRandom(callback) {
+			let randomIndex;
+			do {
+				randomIndex = Math.floor(Math.random() * textLines.length);
+			} while (randomIndex == currentIndex);
+
+			textContainer.textContent = textLines[randomIndex];
+			currentIndex = randomIndex;
+			callback();
+		}
+
+		function switchMode(newMode) {
+			mode = newMode;
+			updateDisplay();
+		}
+
+		function toggleRandomize() {
+			randomizeButton.classList.toggle('active');
+			mode = mode === 'sequential' ? 'random' : 'sequential';
+		}
+
+		function animate(duration, callback) {
+			let start;
+			let opacity = 1;
+			let fadeDuration = duration * fadeRatio;
+			let blankDuration = duration * (1 - fadeRatio);
+
+			function step(timestamp) {
+				if (start === undefined) start = timestamp;
+				const elapsed = timestamp - start;
+				opacity = 1 - elapsed / (fadeDuration * 1000);
+				textContainer.style.opacity = opacity;
+
+				if (elapsed < fadeDuration * 1000) {
+					requestAnimationFrame(step);
+				} else if (elapsed < (fadeDuration + blankDuration) * 1000) {
+					setTimeout(() => requestAnimationFrame(step), blankDuration * 1000);
+				} else {
+					callback();
+					fadeIn(fadeDuration);
+				}
+			}
+
+			requestAnimationFrame(step);
+		}
+
+		function fadeIn(duration) {
+			let start;
+			let opacity = 0;
+			function step(timestamp) {
+				if (start === undefined) start = timestamp;
+				const elapsed = timestamp - start;
+				opacity = elapsed / (duration * 1000);
+				textContainer.style.opacity = opacity;
+				if (elapsed < duration * 1000) {
+					requestAnimationFrame(step);
+				}
+			}
+			requestAnimationFrame(step);
+		}
+
+		textInput.addEventListener('input', () => {
+			textLines = textInput.value.split('\n');
+			restartDisplay();
+		});
+
+		delayInput.addEventListener('input', () => {
+			delay = parseFloat(delayInput.value) * 1000;
+			updateDisplay();
+		});
+
+		spaceInput.addEventListener('input', () => {
+			space = parseFloat(spaceInput.value);
+		});
+
+		fadeRatioInput.addEventListener('input', () => {
+			fadeRatio = parseFloat(fadeRatioInput.value);
+		});
+
+		randomizeButton.addEventListener('click', () => {
+			toggleRandomize();
+		});
+		
+		blendModeInput.addEventListener("change", () => {
+			textContainer.style.mixBlendMode = blendModeInput.value;
+		});
+		
+		
+		
+        WebFont.load({
+            google: {
+                families: [
+                    'Roboto', 'Roboto+Slab', 'Open+Sans', 'Oswald', 'Montserrat', 'Charm', 'Dancing+Script'
+                ]
+            },
+            active: function() {
+                let fonts = [
+                    'Roboto', 'Roboto Slab', 'Open Sans', 'Oswald', 'Montserrat', 'Charm', 'Dancing Script'
+                ];
+                for (let font of fonts) {
+                    let option = document.createElement('option');
+                    option.value = font;
+                    option.textContent = font;
+                    fontPicker.appendChild(option);
+                }
+
+                fontPicker.addEventListener('change', function() {
+                    let fontFamily = this.value;
+                    WebFont.load({
+                        google: {
+                            families: [fontFamily]
+                        },
+                        active: function() {
+                            textContainer.style.fontFamily = fontFamily;
+                        }
+                    });
+                });
+            }
+        });
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</script>
+	
+    <script>
+	    function hideWarning() {
+			document.getElementById("warningModal-fullPage").style.display = "none";
+		}
+
+		function setToZero(id) {
+			document.getElementById(id).value = 0;
+			document.getElementById(id).dispatchEvent(new Event('input'));
+		}
+        function resetInputs() {
+            document.querySelectorAll("input[type='range']").forEach(function(slider) {
+                slider.value = slider.defaultValue;
+            });
+            document.querySelectorAll("input[type='number']").forEach(function(numField) {
+                numField.value = numField.defaultValue;
+            });
+            document.querySelectorAll("input[type='text']").forEach(function(textfield) {
+                textfield.value = "";
+            });
+            document.querySelectorAll("textarea").forEach(function(textarea) {
+                textarea.value = "";
+            });
+            document.querySelectorAll("select").forEach(function(selectElement) {
+                selectElement.selectedIndex = 0;
+            });
+        }
+		function randomizeSliders() {
+		  document.querySelectorAll("input[type='range']").forEach(function (slider) {
+			if (
+			  slider.id !== "superSample" &&
+			  slider.id !== "globalSpeed" &&
+			  slider.id !== "globalScale" &&
+			  slider.id !== "hypnoText-size-input" &&
+			  slider.id !== "hypnoText-fade-input" &&
+			  slider.id !== "loop-edgeFeather"
+			) {
+			let randomValue;
+			if (Number.isInteger(parseFloat(slider.step))) {
+				let range = (slider.max - slider.min) / slider.step;
+				let randomIndex = Math.floor(Math.random() * (range + 1));
+				randomValue = randomIndex * slider.step + parseFloat(slider.min);
+			} else {
+				randomValue =
+				  Math.random() * (slider.max - slider.min) + parseFloat(slider.min);
+				randomValue = randomValue.toFixed(
+				  slider.step.toString().split(".")[1].length
+			    );
+			}
+
+			  // concentric has 75% chance of being forced to 0
+			  if (slider.id === "concentric") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.75) {
+				  randomValue = 0;
+				}
+			  }
+
+			  // dirFlips has 50% chance of being forced to 0
+			  if (slider.id === "dirFlips") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.50) {
+				  randomValue = 0;
+				}
+			  }
+
+			  // lineExp has 25% chance of being forced to 0
+			  if (slider.id === "lineExp") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.25) {
+				  randomValue = 0;
+				}
+			  }
+
+			  // noiseAngAmp has 70% chance of being forced to 0
+			  if (slider.id === "noiseAngAmp") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.70) {
+				  randomValue = 0;
+				}
+			  }
+
+			  // noiseRadAmp has 70% chance of being forced to 0
+			  if (slider.id === "noiseRadAmp") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.70) {
+				  randomValue = 0;
+				}
+			  }
+
+			  // pulseHue has 50% chance of being forced to 0, otherwise do small value
+			  if (slider.id === "pulseHue") {
+				const randomPercent = Math.random();
+				if (randomPercent < 0.50) {
+				  randomValue = 0;
+				} else {
+					randomValue *= 0.3;
+				}
+			  }
+			  
+			  
+
+			  slider.value = randomValue;
+			  slider.dispatchEvent(new Event("input"));
+			}
+		  });
+		}
+	</script>
+	
+	<script>
+		const saveProjectButton = document.getElementById('generateEditorBtn');
+		saveProjectButton.addEventListener('click', () => {
+		  // Pass your desired arguments while calling the copyURLToClipboard function
+		  generateURL("project");
+		});
+		
+		const shareViewerButton = document.getElementById('generateViewerBtn');
+		shareViewerButton.addEventListener('click', () => {
+		  // Pass your desired arguments while calling the copyURLToClipboard function
+		  generateURL("viewer");
+		});
+		
+		const renderButton = document.getElementById('renderBtn');
+		renderButton.addEventListener('click', () => {
+		  // Pass your desired arguments while calling the copyURLToClipboard function
+		  generateURL("render");
+		});
+		
+		function copyEditorURLToClipboard(url) {
+			navigator.clipboard.writeText(url).then(function() {
+				saveProjectButton.textContent = "Link Copied";
+				saveProjectButton.style = "color: rgba(255, 255, 255, 0.75)";
+				setTimeout(() => {
+					saveProjectButton.textContent = "Save Project to URL";
+					saveProjectButton.style = "";
+				}, 1000);
+			});
+		}
+		function copyViewerURLToClipboard(url) {
+			navigator.clipboard.writeText(url).then(function() {
+				shareViewerButton.textContent = "Link Copied";
+				shareViewerButton.style = "color: rgba(255, 255, 255, 0.75)";
+				setTimeout(() => {
+					shareViewerButton.textContent = "Save Viewer to URL";
+					shareViewerButton.style = "";
+				}, 1000);
+			});
+		}
+		function openRenderURL(url) {
+			window.open(url, '_blank');
+		}
+	</script>
+
+</body>
+</html>
