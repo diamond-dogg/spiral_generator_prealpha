@@ -493,13 +493,19 @@
 		const saveProjectButton = document.getElementById('generateEditorBtn');
 		saveProjectButton.addEventListener('click', () => {
 		  // Pass your desired arguments while calling the copyURLToClipboard function
-		  generateURL(true);
+		  generateURL("project");
 		});
 		
 		const shareViewerButton = document.getElementById('generateViewerBtn');
 		shareViewerButton.addEventListener('click', () => {
 		  // Pass your desired arguments while calling the copyURLToClipboard function
-		  generateURL();
+		  generateURL("viewer");
+		});
+		
+		const renderButton = document.getElementById('renderBtn');
+		renderButton.addEventListener('click', () => {
+		  // Pass your desired arguments while calling the copyURLToClipboard function
+		  generateURL("render");
 		});
 		
 		function copyEditorURLToClipboard(url) {
@@ -521,6 +527,9 @@
 					shareViewerButton.style = "";
 				}, 1000);
 			});
+		}
+		function openRenderURL(url) {
+			window.open(url, '_blank');
 		}
 	</script>
 
