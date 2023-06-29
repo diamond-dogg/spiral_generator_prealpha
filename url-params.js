@@ -32,7 +32,7 @@ const inputList = [
 	{ elementType: 'select', inputType: 'select', inputId: 'hypnoText-font-picker'},
 ];
 
-function generateURL(edit = false) {
+function generateURL(urlType) {
 
 	let params = "";
 	inputList.forEach(function (inputInfo) {
@@ -64,20 +64,21 @@ function generateURL(edit = false) {
 		through a CORS proxy. Isn't web development great?
 	*/
 	
-	
-	if (edit === false) {
+	if (urlType === 'viewer') {
 		var url = "https://diamond-dogg.github.io/spiral_generator_prealpha/viewer.html?" + LZString.compressToEncodedURIComponent(params);
-	} else {
+		var copyURL = copyViewerURLToClipboard;
+	} else if (urlType === 'project') {
 		var url = "https://diamond-dogg.github.io/spiral_generator_prealpha/index.html?" + LZString.compressToEncodedURIComponent(params);
+		var copyURL = copyEditorURLToClipboard;
+	} else if (urlType === 'render') {
+		var url = "https://diamond-dogg.github.io/spiral_generator_prealpha/render.html?" + LZString.compressToEncodedURIComponent(params);
+		var copyURL = openRenderURL;
 	}
-	
-	var copyURL = edit ? copyEditorURLToClipboard : copyViewerURLToClipboard;	
 	
 	var shortenerApiUrl = "https://is.gd/create.php?format=simple&url=" + url
 	fetch("https://corsproxy.io/?" + encodeURIComponent(shortenerApiUrl)).then((response) => {
 		if(response.ok) {
 			response.text().then((text) => {
-				copyURL(text);
 				let shortUrlCode = text.split("/").slice(-1);
 				copyURL("https://diamond-dogg.github.io/spiral_generator_prealpha/short.html?" + shortUrlCode);
 			})
@@ -98,10 +99,7 @@ function generateURL(edit = false) {
 
 
 
-function onBlendModeChange(value) {
-    const blendModeInput = document.getElementById('hypnoText-blendMode-input');
-    blendModeInput.value = value;
-}
+
 
 
 
@@ -169,14 +167,12 @@ function getUrlParams() {
                     inputElement.value = decodedValue.replace(/\\r\\n/g, '\r\n');
                     event = new Event('input');
                 } else if (inputInfo.inputType === 'select') {
-                    if (inputInfo.inputId === 'hypnoText-blendMode-input') {
-                        onBlendModeChange(decodedValue);
-                        event = new Event('change');
-                    } else if (inputInfo.inputId === 'hypnoText-font-picker') {
+					if (inputInfo.inputId === 'hypnoText-font-picker') {
                         onFontPickerChange(inputElement, decodedValue);
                         event = new Event('change');
                     } else {
-                        event = new Event('input');
+                        document.getElementById(inputInfo.inputId).value = decodedValue;
+                        event = new Event('change');
                     }
                 } else {
                     event = new Event('input');
