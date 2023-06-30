@@ -30,6 +30,16 @@ const inputList = [
 	{ elementType: 'input', inputType: 'range', inputId: 'exp' },
 	{ elementType: 'select', inputType: 'select', inputId: 'hypnoText-blendMode-input'},
 	{ elementType: 'select', inputType: 'select', inputId: 'hypnoText-font-picker'},
+	{ elementType: 'input', inputType: 'range', inputId: 'pulseExp' },
+	{ elementType: 'input', inputType: 'number', inputId: 'forceLoop-actualNum' },
+	{ elementType: 'input', inputType: 'number', inputId: 'loopPeriod' },
+	{ elementType: 'input', inputType: 'number', inputId: 'loop-transTime' },
+	{ elementType: 'input', inputType: 'range', inputId: 'loop-edgeFeather' },
+	{ elementType: 'input', inputType: 'number', inputId: 'reverseTransDir-actualNum' },
+	{ elementType: 'input', inputType: 'number', inputId: 'render-width' },
+	{ elementType: 'input', inputType: 'number', inputId: 'render-height' },
+	{ elementType: 'input', inputType: 'number', inputId: 'render-framerate' },
+	{ elementType: 'select', inputType: 'select', inputId: 'render-format'},
 ];
 
 function generateURL(urlType) {
