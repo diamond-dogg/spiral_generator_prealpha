@@ -225,10 +225,7 @@ function handleValueChange(id, uniform) {
         element.addEventListener('input', function () {
             const value = parseFloat(element.value);
             if (uniform === "SUPERSAMPLING_FACTOR") {
-                uniforms[uniform].value = 12; // set high supersampling for render
-				if (document.getElementById("render-width").value < 720) {
-					uniforms[uniform].value = 48; // set ultra-high supersampling for low-res renders
-				}
+                uniforms[uniform].value = 16; // set high supersampling for render
             } else {
                 uniforms[uniform].value = value;
             }
