@@ -316,6 +316,7 @@ scene.add(mesh);
 
 
 
+
 let startTime = null;
 let recFrameCount = 0;
 let renderFramerate, renderWidth, renderHeight, renderTime, capturer;
@@ -326,7 +327,7 @@ function recRender(time) {
     renderHeight = document.getElementById("render-height").value;
     renderTime = document.getElementById("loopPeriod").value;
 
-    maxFrames = (renderTime * renderFramerate) - 0;
+    const maxFrames = (renderTime * renderFramerate) - 0;
 
     if (startTime === null) {
         startTime = time;
@@ -349,19 +350,23 @@ function recRender(time) {
         capturer.stop();
         capturer.save();
         recFrameCount++;
+    } else {
+        // Blank out screen and stop rendering
+        renderer.clear();
+        return;
     }
 
     requestAnimationFrame(recRender);
 }
 
 function generateRenderSequence() {
-	renderFormat = document.getElementById("render-format").value;
+    renderFormat = document.getElementById("render-format").value;
     renderFramerate = document.getElementById("render-framerate").value;
     renderWidth = document.getElementById("render-width").value;
     renderHeight = document.getElementById("render-height").value;
     renderTime = document.getElementById("loopPeriod").value;
-	
-	console.log(renderFormat, renderFramerate, renderWidth, renderHeight, renderTime);
+    
+    console.log(renderFormat, renderFramerate, renderWidth, renderHeight, renderTime);
 
     capturer = new CCapture({
         name: 'dd_generated_spiral',
