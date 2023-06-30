@@ -164,12 +164,12 @@
 	
     <div id="looping-controls">
 		<div>
-            <button id="forceLoop-button" type="button_toggle">Force Looping</button>
-			<input id="forceLoop-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
+            <button id="forceLoop-button" type="button_toggle" class="active">Force Looping</button>
+			<input id="forceLoop-actualNum" type="number" min="0" max="1" step="1" value="1" style="display: none">
         </div>
         <div class="vertical-label-set">
             <label style="font-size: 1vh; margin-bottom: 0.2vh">Loop Period</label>
-            <input id="loopPeriod" type="number" min="0.1" step="0.1" value="10" onblur="checkLoopTimes()">
+            <input id="loopPeriod" type="number" min="0.1" step="0.1" value="6" onblur="checkLoopTimes()">
         </div>
         <div class="vertical-label-set">
             <label style="font-size: 1vh; margin-bottom: 0.2vh">Loop Transition Time</label>
@@ -177,7 +177,7 @@
         </div>
 		<div class="vertical-label-set">
             <label style="font-size: 1vh; margin-bottom: 0.2vh">Transition Edge Feather</label>
-            <input type="range" id="loop-edgeFeather" min="0" max="1" step="0.001" value="0.4" class="slider" style="width: 10vh;">
+            <input type="range" id="loop-edgeFeather" min="0" max="1" step="0.001" value="0.6" class="slider" style="width: 10vh;">
         </div>
 		<div>
 			<button id="reverseTransDir-button" type="button_toggle" style="font-size: 1vh;">Reverse Transition Direction</button>
