@@ -23,14 +23,6 @@
 	<script type="text/javascript" src="lz-string.min.js"></script>
 </head>
 <body onload="resetInputs(); getUrlParams(); generateRenderSequence();">
-	<div class="warning-modal-full-page" id="warningModal-fullPage">
-		<div class="warning-modal">
-			<h1>Seizure Warning</h1>
-			<p>This website contains flashing images that might trigger seizures for people with photosensitive epilepsy.</p>
-			<p>If you have a history of epilepsy or seizures, please avoid this site like the plague.</p>
-			<button id="continueButton" onclick="hideWarning(); restartDisplay();">Continue</button>
-		</div>
-	</div>
 	
 	
 	
@@ -40,7 +32,7 @@
 		<br>
 		<button id="exit-render-settings-button" style="font-size: 15px; position: absolute; top: 10px; right: 10px;" onclick="hideElement('render-settings-menu')">X</button>
 		<label style="font-size: 15px">Format: </label>
-		<select id="render-format" style="width: 160px; height: 24px; font-size: 15px;">
+		<select id="render-format" type="select" style="width: 160px; height: 24px; font-size: 15px;">
 			<option value="gif">GIF</option>
 			<option value="jpg">JPG Sequence</option>
 		</select>
@@ -199,6 +191,7 @@
     <canvas id="spiralCanvas"></canvas>
 	<script src="spiral-record.js"></script>
 	<script src="url-params.js"></script>
+	
 	
 
 	<script>
@@ -362,7 +355,6 @@
 		
 		delayInput.addEventListener("input", updateLoopPeriod);
 		spaceInput.addEventListener("input", updateLoopPeriod);
-		
 		
 		
 		
