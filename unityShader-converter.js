@@ -1,8 +1,4 @@
-
-
 function generateUnityShader() {
-	
-	
 	
 	// Variables for writing Unity shader
 	const globalSpeed = document.getElementById('globalSpeed').value;
@@ -70,7 +66,7 @@ function generateUnityShader() {
         _LineExp("Line Feather", Range(0, 10)) = ${lineExp}
 
         _MotionBlur("Motion Blur", Range(0, 10)) = ${motionBlur}
-        _SuperSamplingFactor("Super Sampling Factor (Blur / AA quality)", Range(1, 8)) = ${superSample}
+        _SuperSamplingFactor("Super Sampling Factor (Blur / AA quality)", Range(1, 8)) = 3
 
         _ForceLoop("Force Loop", Range(0, 1)) = ${forceLoopActualNum}
         _LoopPeriod("Loop Period", Range(1, 100)) = ${loopPeriod}
@@ -191,12 +187,12 @@ function generateUnityShader() {
             float2 polar = c2p(p);
 
             if (_ForceLoop == 1) {
-                float timeA = fmod(inTime, _LoopPeriod); // Normal time
-                float timeB = fmod(inTime+(_LoopPeriod*0.5), _LoopPeriod); // Out of phase time
+                float timeA = fmod(inTime, _LoopPeriod*2.0); // Normal time
+                float timeB = fmod(inTime+_LoopPeriod, (_LoopPeriod*2.0)); // Out of phase time
 
                 float transGrad = 1.0 - ((polar.x * _GlobalScale) / (aspect * 1.4145)); // Normalized transition gradient (could be direction, radius, some spiral thing, etc)
                 if (_LoopReverse == 1) {transGrad = 1.0 - transGrad;} // Reverse direction
-                float swapValue = remap(fmod(inTime, _LoopPeriod*0.5), (_LoopPeriod*0.5)-_TransTime, _LoopPeriod*0.5, 0.0, 1.0); // Broken-up linear curve over time for actual transition factor
+                float swapValue = remap(fmod(inTime, _LoopPeriod), _LoopPeriod-_TransTime, _LoopPeriod, 0.0, 1.0); // Broken-up linear curve over time for actual transition factor
                 float swapValue_clamped = clamp(swapValue, 0.0, 1.0); // Clamp to actually break up the linear curve
 
                 float featherCurve = abs(transGrad - swapValue_clamped) * (1.0 / customPow(_LoopFeather*0.5,2.0));
@@ -209,7 +205,7 @@ function generateUnityShader() {
                 float viewA, viewB; // Placeholder times so that they can be swapped without issues
 
                 // Swap times past half-way point (necessary for same-direction transitioning)
-                if (timeA > _LoopPeriod*0.5) {
+                if (timeA > _LoopPeriod) {
                     viewA = timeA;
                     viewB = timeB;
                 }
