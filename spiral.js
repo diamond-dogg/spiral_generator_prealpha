@@ -1,4 +1,4 @@
-const canvas = document.getElementById('myCanvas');
+const canvas = document.getElementById('spiralCanvas');
 const renderer = new THREE.WebGLRenderer({ canvas });
 
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -37,8 +37,14 @@ const fragmentShader = `
 	
 	uniform float MOTION_BLUR;
 	uniform int SUPERSAMPLING_FACTOR; // Supersampling factor for anti-aliasing (higher = smoother but slower)
-
-    float rand(vec2 n) {
+	
+	uniform int FORCE_LOOP;
+	uniform float LOOP_PERIOD;
+	uniform float TRANS_TIME;
+	uniform float LOOP_FEATHER;
+	uniform int LOOP_REVERSE;
+	
+	float rand(vec2 n) {
         return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
     }
 
@@ -74,18 +80,81 @@ const fragmentShader = `
         }
         return exp2(exponent * log2(base));
     }
+	
+	// Range mapping function
+	float remap(float value, float oldMin, float oldMax, float newMin, float newMax) {
+	  return newMin + (value - oldMin) * (newMax - newMin) / (oldMax - oldMin);
+	}
 
 	// main fragment shader
 	vec3 primaryShader( in vec2 fragCoord, in float inTime )
 	{
-		float globalTime = inTime * GLOBAL_SPEED;
-		
 		// zero-centered uv space
-		vec2 p = vec2((fragCoord.x / iResolution.x - 0.5) * (iResolution.x / min(iResolution.x, iResolution.y)) * 2.0, (fragCoord.y / iResolution.y - 0.5) * (iResolution.y / min(iResolution.x, iResolution.y)) * 2.0);
-		p /= GLOBAL_SCALE;
+		vec2 p_shortNorm = vec2((fragCoord.x / iResolution.x - 0.5) * (iResolution.x / min(iResolution.x, iResolution.y)) * 2.0, (fragCoord.y / iResolution.y - 0.5) * (iResolution.y / min(iResolution.x, iResolution.y)) * 2.0);
+		vec2 p = p_shortNorm / GLOBAL_SCALE;
+		
+		// aspect ratio of screen
+		float aspect = max(iResolution.x, iResolution.y) / min(iResolution.x, iResolution.y);
 		
 		// get polar coordinates
 		vec2 polar = c2p(p);
+		
+		
+		
+		
+
+		
+		
+		if (FORCE_LOOP == 1) {
+			float timeA = mod(inTime, LOOP_PERIOD*2.0); // normal time
+			float timeB = mod(inTime+LOOP_PERIOD, LOOP_PERIOD*2.0); // out of phase time
+			
+			float transGrad = 1.0 - ((polar.x * GLOBAL_SCALE) / (aspect * 1.4145)); // normalized transition gradient (could be direction, radius, some spiral thing, etc)
+			if (LOOP_REVERSE == 1) {transGrad = 1.0 - transGrad;} // reverse direction
+			float swapValue = remap(mod(inTime, LOOP_PERIOD), LOOP_PERIOD-TRANS_TIME, LOOP_PERIOD, 0.0, 1.0); // broken-up linear curve over time for actual transition factor
+			float swapValue_clamped = clamp(swapValue, 0.0, 1.0); // clamp to actually break up the linear curve
+			
+			float featherCurve = abs(transGrad - swapValue_clamped) * (1.0 / customPow(LOOP_FEATHER*0.5,2.0));
+			featherCurve = clamp(featherCurve, 0.0, 1.0);
+			featherCurve = 1.0 - featherCurve;
+			featherCurve = customPow(featherCurve, 1.0);
+			
+			swapValue_clamped -= rand(fragCoord) * (featherCurve * TRANS_TIME * 0.01); // edge feather
+			
+			float viewA, viewB; // placeholder times so that they can be swapped without issues
+			
+
+
+			
+			// swap times past half-way point (necessary for same-direction transitioning)
+			if (timeA > LOOP_PERIOD) {
+				viewA = timeA;
+				viewB = timeB;
+			}
+			else {
+				viewA = timeB;
+				viewB = timeA;
+			}
+			
+			// actually swap between times based on transition gradient and swap value
+			if (swapValue_clamped < transGrad) {
+				inTime = viewA;
+			}
+			else {
+				inTime = viewB;
+			}
+		}
+		
+		
+		
+		
+		
+		float globalTime = inTime * GLOBAL_SPEED;
+		
+		
+		
+		
+		
 		
 		// noise
 		vec2 noiseSampleP = p2c(vec2(polar.x, polar.y + globalTime * NOISE_SPEED)); // rotate the uv-space the noise will be sampling from (to rotate the noise)
@@ -94,7 +163,7 @@ const fragmentShader = `
 		polar.x += displace.y * NOISE_RAD_AMP; // darken spiral with nosie (polar.x affects brightness)
 			
 		// Spiral
-		polar.y += tan(polar.x * CONCENTRIC + globalTime * CONCENTRIC_SPEED * CONCENTRIC); // add concentric circles
+		polar.y += clamp(tan(polar.x * CONCENTRIC + globalTime * CONCENTRIC_SPEED * CONCENTRIC), -25.0, 25.0); // add concentric circles
 		polar.y += customPow(polar.x, EXP) * FREQ + globalTime * BASE_SPEED; // twist the uv space around the origin (basis of the spiral)
 		float pulse = sin(polar.x * PULSE_FREQ + globalTime * PULSE_SPEED); // create pulse factor
 		polar.y -= customPow(pulse, PULSE_EXP) * PULSE_AMP; // contract/expand based on pulse factor
@@ -117,6 +186,8 @@ const fragmentShader = `
 		vec3 outColor = hsv2rgb(vec3(newHue, SAT, VAL)); // color of glow around line
 		vec3 col = mix(outColor, inColor, bright); // interpolate between in/out colors
 		col *= bright; // black background
+
+		//col = vec3(featherCurve);
 
 		return col;
 	}
@@ -186,6 +257,11 @@ handleValueChange('motionBlur', 'MOTION_BLUR');
 handleValueChange('superSample', 'SUPERSAMPLING_FACTOR');
 handleValueChange('pulseHue', 'PULSE_HUE');
 handleValueChange('exp', 'EXP');
+handleValueChange('forceLoop-actualNum', 'FORCE_LOOP');
+handleValueChange('loopPeriod', 'LOOP_PERIOD');
+handleValueChange('loop-transTime', 'TRANS_TIME');
+handleValueChange('loop-edgeFeather', 'LOOP_FEATHER');
+handleValueChange('reverseTransDir-actualNum', 'LOOP_REVERSE');
 
 
 const uniforms = {
@@ -214,6 +290,11 @@ const uniforms = {
 	SUPERSAMPLING_FACTOR: { value: 4 },
 	PULSE_HUE: { value: 0 },
 	EXP: { value: 1.0 },
+	FORCE_LOOP: { value: 0 },
+	LOOP_PERIOD: { value: 10 },
+	TRANS_TIME: { value: 5 },
+	LOOP_FEATHER: { value: 0.4 },
+	LOOP_REVERSE: { value: 0 },
 };
 
 const material = new THREE.ShaderMaterial({
@@ -232,10 +313,10 @@ const material = new THREE.ShaderMaterial({
 const mesh = new THREE.Mesh(plane, material);
 scene.add(mesh);
 
-let advicePage = "gpu-error.html"; // advice page for when fps is unacceptable
+let advicePage = "gpu-error.html";
 let prevTime = performance.now() * 0.001;
-let terribleFPS = 8; // FPS for sending to advice page
-let thresholdFPS = 30; // FPS threshold for enabling performance mode
+let terribleFPS = 10; // FPS for sending to advice page
+let thresholdFPS = 40; // FPS threshold for enabling performance mode
 let scaleFactor = 1; // Initialize the scaling factor to 1
 let performanceScaleFactor = 0.3; // performance mode scaling factor
 let frameCount = 0; // Count number of frames in sample period
@@ -283,12 +364,13 @@ function render() {
       resolutionAdapted = true;
     }
 
+
     frameCount = 0;
     sumFPS = 0;
   }
 
-  // Display FPS and average FPS in a HTML element
-  document.getElementById("fps").innerHTML = "Average FPS: " + Math.round(averageFPS);
+  // Display FPS and average FPS in a HTML element (DEPRECIATED)
+  //document.getElementById("fps").innerHTML = "Average FPS: " + Math.round(averageFPS);
 
   if (resizeRendererToDisplaySize(renderer)) {
     const canvas = renderer.domElement;
