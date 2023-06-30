@@ -7,6 +7,9 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+	<script src="unityShader-converter.js"></script>
+	<script src="CCapture.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 	<!--
 		In an ideal world, we could load this straight from the GitHub page of lz-string: https://github.com/pieroxy/lz-string/tree/master
@@ -23,6 +26,28 @@
 			<button id="continueButton" onclick="hideWarning(); restartDisplay();">Continue</button>
 		</div>
 	</div>
+	
+	
+	
+	<div id="render-settings-menu" style="display: none">
+		<h1>Render Settings</h1>
+		<p>Force Looping should be enabled when rendering your spiral. Render length is defined by Loop Period.<br>GIFs should be kept low-resolution and low-fps to keep file-size reasonable for web-viewing.</p>
+		<br>
+		<button id="exit-render-settings-button" style="font-size: 15px; position: absolute; top: 10px; right: 10px;" onclick="hideElement('render-settings-menu')">X</button>
+		<label style="font-size: 15px">Format: </label>
+		<select id="render-format" type="select" style="width: 160px; height: 24px; font-size: 15px;">
+			<option value="gif">GIF</option>
+			<option value="jpg">JPG Sequence</option>
+		</select>
+		<label style="font-size: 15px; margin-left: 30px;">Width: </label><input id="render-width" type="number" min="10" step="1" value="960" style="width: 60px; height: 24px; font-size: 15px;">
+		<label style="font-size: 15px; margin-left: 30px;">Height: </label><input id="render-height" type="number" min="10" step="1" value="540" style="width: 60px; height: 24px; font-size: 15px;">
+		<label style="font-size: 15px; margin-left: 30px;">FPS: </label><input id="render-framerate" type="number" min="5" step="1" value="15" style="width: 60px; height: 24px; font-size: 15px;">
+		<button id="renderBtn" style="font-size: 15px; margin-left: 60px;" onclick="hideElement('render-settings-menu');">Render</button>
+	</div>
+	
+	
+	
+	
 	
 	
 	<div id="hypnoText-container"></div>
@@ -133,17 +158,59 @@
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
 		<div><button id="generateEditorBtn">Save Project to URL</button></div>
 		<div><button id="generateViewerBtn">Export Viewer to URL</button></div>
-		<div id="spacing"></div>
-		<div id="fps" style="padding-left: 1vw;"></div>
+		<div><button id="generateUnityBtn" onclick="generateUnityShader()">Export Spiral to Unity Shader (no text)</button></div>
+		<div><button id="open-render-settings-button" onclick="showElement('render-settings-menu')">Render Spiral (text-support hopefully coming soon)</button></div>
+		<a id="downloadAnchor" style="display: none;"></a>
+		<!-- <div id="spacing"></div>
+		<div id="fps" style="padding-left: 1vw;"></div> -->
 	</div>
+	
+    <div id="looping-controls">
+		<div>
+            <button id="forceLoop-button" type="button_toggle">Force Looping</button>
+			<input id="forceLoop-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
+        </div>
+        <div class="vertical-label-set">
+            <label style="font-size: 1vh; margin-bottom: 0.2vh">Loop Period</label>
+            <input id="loopPeriod" type="number" min="0.1" step="0.1" value="10" onblur="checkLoopTimes()">
+        </div>
+        <div class="vertical-label-set">
+            <label style="font-size: 1vh; margin-bottom: 0.2vh">Loop Transition Time</label>
+            <input id="loop-transTime" type="number" min="0.1" step="0.1" value="5" onblur="checkLoopTimes()">
+        </div>
+		<div class="vertical-label-set">
+            <label style="font-size: 1vh; margin-bottom: 0.2vh">Transition Edge Feather</label>
+            <input type="range" id="loop-edgeFeather" min="0" max="1" step="0.001" value="0.4" class="slider" style="width: 10vh;">
+        </div>
+		<div>
+			<button id="reverseTransDir-button" type="button_toggle" style="font-size: 1vh;">Reverse Transition Direction</button>
+			<input id="reverseTransDir-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
+		</div>
+    </div>
+	
+	
+	
     <button class="fullscreen" id="fullscreenButton" onclick="toggleFullScreen()" style="display: none;">fullscreen</button>
-    <canvas id="myCanvas"></canvas>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="spiral.js"></script>
+    <canvas id="spiralCanvas"></canvas>
+	<script src="spiral.js"></script>
 	<script src="url-params.js"></script>
 	
-	
-	
+
+	<script>
+	function hideElement(elementID) {
+		var element = document.getElementById(elementID);
+		if (element) {
+			element.style.display = "none";
+		}
+	}
+
+	function showElement(elementID) {
+		var element = document.getElementById(elementID);
+		if (element) {
+			element.style.display = ""; // This will reset the display property to its default value
+		}
+	}
+	</script>
 	
 	
 	<script>
@@ -187,6 +254,44 @@
 	
 
 	<script src="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.js"></script>
+	
+	<script>
+		let forceLoopButton = document.getElementById('forceLoop-button');
+		let forceLoopActualNum = document.getElementById('forceLoop-actualNum');
+		let reverseTransDirButton = document.getElementById('reverseTransDir-button');
+		let reverseTransDirActualNum = document.getElementById('reverseTransDir-actualNum');
+
+		forceLoopButton.addEventListener('click', () => {
+			forceLoopButton.classList.toggle('active');
+			forceLoopActualNum.value = forceLoopButton.classList.contains('active') ? 1 : 0;
+			forceLoopActualNum.dispatchEvent(new Event("input"));
+		});
+
+		reverseTransDirButton.addEventListener('click', () => {
+			reverseTransDirButton.classList.toggle('active');
+			reverseTransDirActualNum.value = reverseTransDirButton.classList.contains('active') ? 1 : 0;
+			reverseTransDirActualNum.dispatchEvent(new Event("input"));
+		});
+
+		forceLoopActualNum.addEventListener('input', () => {
+			if (forceLoopActualNum.value == 1 && !forceLoopButton.classList.contains('active')) {
+				forceLoopButton.classList.add('active');
+			} else if (forceLoopActualNum.value == 0 && forceLoopButton.classList.contains('active')) {
+				forceLoopButton.classList.remove('active');
+			}
+		});
+
+		reverseTransDirActualNum.addEventListener('input', () => {
+			if (reverseTransDirActualNum.value == 1 && !reverseTransDirButton.classList.contains('active')) {
+				reverseTransDirButton.classList.add('active');
+			} else if (reverseTransDirActualNum.value == 0 && reverseTransDirButton.classList.contains('active')) {
+				reverseTransDirButton.classList.remove('active');
+			}
+		});
+	</script>
+	
+
+	
 	<script>
 		Coloris({
 			themeMode: 'dark',
@@ -204,6 +309,9 @@
 		let fadeRatioInput = document.querySelector('#hypnoText-fade-input');
 		let blendModeInput = document.getElementById("hypnoText-blendMode-input");
 		let fontPicker = document.getElementById("hypnoText-font-picker");
+		
+		let loopPeriod = document.getElementById("loopPeriod");
+		let loopTrans = document.getElementById("loop-transTime");
 
 		let textLines = [];
 		let currentIndex = 0;
@@ -211,6 +319,48 @@
 		let space = 0; // initialize at default
 		let fadeRatio = 0.3; // initialize at default
 		let intervalId;
+		
+		
+		
+		
+		function updateLoopPeriod() {
+			if (textLines.length > 1) { // should really be > 0, but that causes weird glitch where it disables loopPeriod when loading in a save without text, so this works for now, nobody just has 1 line of text anyway lmao
+				loopPeriod.value = textLines.length * (parseInt(delayInput.value) + parseInt(spaceInput.value));
+				loopPeriod.disabled = true;
+				loopPeriod.dispatchEvent(new Event('input'));
+				checkLoopTimes();
+			} else {
+				loopPeriod.disabled = false;
+			}
+		}
+		
+		
+				
+		function checkLoopTimes() {
+			if (parseInt(loopTrans.value) > parseInt(loopPeriod.value)) {
+				loopTrans.value = parseInt(loopPeriod.value);
+				loopTrans.dispatchEvent(new Event('input'));
+			}
+		}
+		
+		textInput.addEventListener("input", function (event) {
+			textLines = event.target.value.split("\n"); // Assuming textLines is an array of lines from the input
+
+			if (textLines.length === 1 && textLines[0] === "") {
+				// If the input is empty or has only an empty line, clear textLines
+				textLines = [];
+			}
+
+			updateLoopPeriod();
+		});
+		
+		
+		delayInput.addEventListener("input", updateLoopPeriod);
+		spaceInput.addEventListener("input", updateLoopPeriod);
+		
+		
+		
+		
 
 		colorInput.addEventListener('input', function () {
 			let hexValue = this.value;
@@ -415,7 +565,8 @@
 			  slider.id !== "globalSpeed" &&
 			  slider.id !== "globalScale" &&
 			  slider.id !== "hypnoText-size-input" &&
-			  slider.id !== "hypnoText-fade-input"
+			  slider.id !== "hypnoText-fade-input" &&
+			  slider.id !== "loop-edgeFeather"
 			) {
 			let randomValue;
 			if (Number.isInteger(parseFloat(slider.step))) {
