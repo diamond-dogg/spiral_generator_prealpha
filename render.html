@@ -22,7 +22,8 @@
 	-->
 	<script type="text/javascript" src="lz-string.min.js"></script>
 </head>
-<body onload="resetInputs(); getUrlParams(); generateRenderSequence();">
+<!--timeout on generateRenderSequence so we have time to set the font size-->
+<body onload="resetInputs(); getUrlParams(); setTimeout(generateRenderSequence, 100);">
 	
 	
 	
@@ -189,6 +190,8 @@
 	
     <button class="fullscreen" id="fullscreenButton" onclick="toggleFullScreen()" style="display: none;">fullscreen</button>
     <canvas id="spiralCanvas"></canvas>
+	<canvas id="compositeCanvas"></canvas>
+    <image id="backgroundImage"></image>
 	<script src="spiral-record.js"></script>
 	<script src="url-params.js"></script>
 	
@@ -468,7 +471,20 @@
 
 		delayInput.addEventListener('input', () => {
 			delay = parseFloat(delayInput.value) * 1000;
-			updateDisplay();
+			/*
+				So this causes cursed timing bugs with the first few text iterations.
+				Essentially, when both subliminals and a delay are loaded from URL params,
+				updateDisplay() gets called twice in close succession.
+				This creates two competing updateDisplay() timeout loops for the first few loops.
+				It seems to fix itself eventually (I'm not sure how),
+				so it's not a huge problem in the web player.
+
+				However, when we're recording a spiral, the first few iterations are crucially important.
+				Having this delay in the renderer messes up the beginning of the spiral,
+				so as a stopgap measure, we just disable the update here.
+				It's only really useful when the user updates the delay, so there shouldn't be any fallout.
+			*/
+			// updateDisplay();
 		});
 
 		spaceInput.addEventListener('input', () => {

@@ -1,6 +1,11 @@
 const canvas = document.getElementById('spiralCanvas');
 const renderer = new THREE.WebGLRenderer({ canvas });
 
+const compositeCanvas = document.getElementById("compositeCanvas");
+const compositeCanvasContext = compositeCanvas.getContext("2d");
+
+const hypnoText = document.getElementById("hypnoText-container");
+
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 const scene = new THREE.Scene();
 const plane = new THREE.PlaneBufferGeometry(2, 2);
@@ -318,8 +323,60 @@ scene.add(mesh);
 
 
 let startTime = null;
+let backgroundImage = null;
 let recFrameCount = 0;
 let renderFramerate, renderWidth, renderHeight, renderTime, capturer;
+
+// https://stackoverflow.com/a/73401564
+function RGBAToHexA(rgba, forceRemoveAlpha = false) {
+	return "#" + rgba.replace(/^rgba?\(|\s+|\)$/g, '') // Gets rgba / rgb string values
+	  .split(',') // splits them at ","
+	  .filter((string, index) => !forceRemoveAlpha || index !== 3)
+	  .map(string => parseFloat(string)) // Converts them to numbers
+	  .map((number, index) => index === 3 ? Math.round(number * 255) : number) // Converts alpha to 255 number
+	  .map(number => number.toString(16)) // Converts numbers to hex
+	  .map(string => string.length === 1 ? "0" + string : string) // Adds 0 when length of one number is 1
+	  .join("") // Puts the array to togehter to a string
+  }
+
+// Composites the spiral, the text, and the background image onto a hidden 2D canvas for rendering
+function composite() {
+    // Step 1: clear the existing canvas
+    compositeCanvasContext.clearRect(0, 0, renderWidth, renderHeight);
+
+    // Step 2: draw the spiral at full opacity
+    compositeCanvasContext.globalAlpha = 1.0;
+    compositeCanvasContext.drawImage(canvas, 0, 0);
+
+    // Step 3: if there's a background image, draw it at its given opacity
+    if(backgroundImage) {
+        compositeCanvasContext.globalAlpha = document.getElementById("backgroundImage").style.opacity;
+	compositeCanvasContext.drawImage(backgroundImage, 0, 0, renderWidth, renderHeight);
+    }
+
+    // Step 4 (the fun part): draw the text
+    if(hypnoText.innerText) {
+	// Text opacity is hardcoded at 0.5. If that ever changes, this will need to be updated too.
+	compositeCanvasContext.globalAlpha = 0.5;
+	compositeCanvasContext.textAlign = "center";
+
+	// Have to use computed style or it doesn't detect the color correctly
+	var computedStyle = window.getComputedStyle(hypnoText);
+	compositeCanvasContext.fillStyle = RGBAToHexA(computedStyle.getPropertyValue("color"), true);
+
+	// Scale down the font size from (dimensions in our browser) to (dimensions in the rendered GIF)
+	var computedFontSize = parseFloat(computedStyle.getPropertyValue("font-size"));
+	var adjustedFontSize = computedFontSize * (parseFloat(renderHeight) / canvas.offsetHeight);
+	compositeCanvasContext.font = adjustedFontSize + "px " + computedStyle.getPropertyValue("font-family");
+
+	// Calculate the height of the font so we can vertically center it
+	var calculatedFontMeasure = compositeCanvasContext.measureText(hypnoText.innerText);
+	var calculatedFontHeight = calculatedFontMeasure.actualBoundingBoxAscent - calculatedFontMeasure.actualBoundingBoxDescent;
+
+	// Finally, draw the text in the middle
+	compositeCanvasContext.fillText(hypnoText.innerText, renderWidth / 2, calculatedFontHeight / 2 + parseFloat(renderHeight) / 2);
+    }
+}
 
 function recRender(time) {
     renderFramerate = document.getElementById("render-framerate").value;
@@ -336,6 +393,9 @@ function recRender(time) {
     renderer.setSize(renderWidth, renderHeight, false);
     uniforms.iResolution.value.set(renderWidth, renderHeight);
 
+    compositeCanvas.width = renderWidth;
+    compositeCanvas.height = renderHeight;
+
     time = startTime;
     startTime += 1000 / renderFramerate;
 
@@ -344,7 +404,8 @@ function recRender(time) {
     renderer.render(scene, camera);
 
     if (recFrameCount < maxFrames) {
-        capturer.capture(renderer.domElement);
+        composite();
+	capturer.capture(compositeCanvas);
         recFrameCount++;
     } else if (recFrameCount === maxFrames) {
         capturer.stop();
@@ -359,7 +420,7 @@ function recRender(time) {
     requestAnimationFrame(recRender);
 }
 
-function generateRenderSequence() {
+function startRendering() {
     renderFormat = document.getElementById("render-format").value;
     renderFramerate = document.getElementById("render-framerate").value;
     renderWidth = document.getElementById("render-width").value;
@@ -381,4 +442,21 @@ function generateRenderSequence() {
 
     requestAnimationFrame(recRender);
     capturer.start();
+}
+
+function generateRenderSequence() {
+    backgroundImage = document.getElementById("backgroundImage")
+    backgroundImage.crossOrigin="anonymous";  // fixes certain CORS complaints
+
+    // Do some thoroughly cursed shit to avoid CORS burning down our house, as per usual
+    backgroundImage.crossOrigin="anonymous";
+    if(backgroundImage.src) {
+        backgroundImage.src = "https://corsproxy.io/?" + encodeURIComponent(backgroundImage.src)
+
+        // ensure the background image loads before we start recording
+        backgroundImage.onload = startRendering;
+    }
+    else {
+        startRendering();
+    }
 }
