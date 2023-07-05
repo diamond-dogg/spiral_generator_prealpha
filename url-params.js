@@ -30,6 +30,8 @@ const inputList = [
 	{ elementType: 'input', inputType: 'range', inputId: 'exp' },
 	{ elementType: 'select', inputType: 'select', inputId: 'hypnoText-blendMode-input'},
 	{ elementType: 'select', inputType: 'select', inputId: 'hypnoText-font-picker'},
+	{ elementType: 'input', inputType: 'text', inputId: 'backgroundImageInput'},
+	{ elementType: 'input', inputType: 'range', inputId: 'backgroundImageOpacity'},
 	{ elementType: 'input', inputType: 'range', inputId: 'pulseExp' },
 	{ elementType: 'input', inputType: 'number', inputId: 'forceLoop-actualNum' },
 	{ elementType: 'input', inputType: 'number', inputId: 'loopPeriod' },
@@ -156,6 +158,12 @@ function getUrlParams() {
             } else {
                 inputElement = document.querySelector(`${inputInfo.elementType}[type='${inputInfo.inputType}'][id='${inputInfo.inputId}']`);
             }
+
+			if (inputInfo.inputId == "backgroundImageInput") {
+				document.getElementById("backgroundImage").src = decodeURIComponent(value);
+			} else if (inputInfo.inputId == "backgroundImageOpacity") {
+				document.getElementById("backgroundImage").style.opacity = decodeURIComponent(value);
+			}
 
             if (inputElement) {
                 let decodedValue = decodeURIComponent(value);
