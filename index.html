@@ -155,6 +155,9 @@
 		<div><input type="range" id="motionBlur" min="0" max="5" step="0.01" value="0.75" class="slider"><label for="motionBlur">Motion Blur</label></div>
 		<div><input type="range" id="superSample" min="1" max="8" step="1" value="4" class="slider"><label for="superSample">Super Sampling Factor (Blur / AA quality)</label></div>
 		<div id="spacing"></div>
+		<div><input id="backgroundImageInput" type="text"><label for="backgroundImageInput"> Background Image</label></div>
+		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider"><label for="backgroundImageOpacity"> Background Opacity</label></div>
+		<div id="spacing"></div>
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
 		<div><button id="generateEditorBtn">Save Project to URL</button></div>
 		<div><button id="generateViewerBtn">Export Viewer to URL</button></div>
@@ -188,13 +191,12 @@
 		</div>
     </div>
 	
-	
-	
     <button class="fullscreen" id="fullscreenButton" onclick="toggleFullScreen()" style="display: none;">fullscreen</button>
     <canvas id="spiralCanvas"></canvas>
-	<script src="spiral.js"></script>
+    <image id="backgroundImage"></image>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="spiral.js"></script>
 	<script src="url-params.js"></script>
-	
 
 	<script>
 	function hideElement(elementID) {
@@ -683,5 +685,18 @@
 			window.open(url, '_blank');
 		}
 	</script>
+
+	<script>
+		document.getElementById("backgroundImageInput").addEventListener("input", (event) => {
+			var newSource = document.getElementById("backgroundImageInput").value;
+			document.getElementById("backgroundImage").src = newSource;
+		});
+
+		document.getElementById("backgroundImageOpacity").addEventListener("input", (event) => {
+			var newOpacity = document.getElementById("backgroundImageOpacity").value;
+			document.getElementById("backgroundImage").style.opacity = newOpacity;
+		});
+	</script>
+
 </body>
 </html>

@@ -35,7 +35,7 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: -1;
+    z-index: -2;
 }
 .fullscreen {
 	position: absolute;
@@ -71,6 +71,10 @@ select {
 
 
 
+#compositeCanvas {
+	display: none;
+}
+
 #hypnoText-container {
     position: fixed;
     top: 50%;
@@ -79,6 +83,7 @@ select {
     font-size: 10vh;
     text-align: center;
     color: rgba(255,255,255,0.5);
+	user-select: none;
 }
 
 #hypnoText-controls {
@@ -112,6 +117,20 @@ input[type="number"] {
 	background-color: rgba(0,0,0,0.5);
 	color: rgba(255,255,255,0.5);
 	height: 2vh;
+}
+
+#backgroundImageInput {
+    background-color: rgba(0,0,0,0.5);
+    color: rgba(255,255,255,0.5);
+    height: 2vh;
+}
+
+#backgroundImage {
+	width: 100%;
+	height: 100%;
+	opacity: 0.1;
+	z-index: -1;
+	object-fit: cover;
 }
 
 #hypnoText-randomize-button {
