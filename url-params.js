@@ -160,7 +160,11 @@ function getUrlParams() {
             }
 
 			if (inputInfo.inputId == "backgroundImageInput") {
-				document.getElementById("backgroundImage").src = decodeURIComponent(value);
+				let imageSource = decodeURIComponent(value);
+				if(imageSource) {
+					// Avoid setting the source to an empty string, which leads to thoroughly haunted problems later
+					document.getElementById("backgroundImage").src = imageSource;
+				}
 			} else if (inputInfo.inputId == "backgroundImageOpacity") {
 				document.getElementById("backgroundImage").style.opacity = decodeURIComponent(value);
 			}
