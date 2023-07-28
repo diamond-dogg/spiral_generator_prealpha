@@ -451,7 +451,9 @@ function generateRenderSequence() {
     // Do some thoroughly cursed shit to avoid CORS burning down our house, as per usual
     backgroundImage.crossOrigin="anonymous";
     if(backgroundImage.src) {
-        backgroundImage.src = "https://corsproxy.io/?" + encodeURIComponent(backgroundImage.src)
+	// Disable CORS proxy for now, since it breaks under unknown conditions
+	// One of these conditions is loading Discord images, which sucks, because that's where our hypno nonsense is
+        // backgroundImage.src = "https://corsproxy.io/?" + encodeURIComponent(backgroundImage.src)
 
         // ensure the background image loads before we start recording
         backgroundImage.onload = startRendering;
