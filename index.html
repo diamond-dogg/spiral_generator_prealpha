@@ -28,6 +28,12 @@
 	</div>
 	
 	
+	<div id="tab-controls">
+		<button id="button-spiral-menu" menu="spiral-menu" class="menu-toggle active" type="button_toggle">Spiral Menu</button>
+		<button id="button-export-menu" menu="export-menu" class="menu-toggle" type="button_toggle">Export Menu</button>
+	</div>
+	
+
 	
 	<div id="render-settings-menu" style="display: none">
 		<h1>Render Settings</h1>
@@ -47,10 +53,10 @@
 	
 	
 	
-	
-	
-	
 	<div id="hypnoText-container"></div>
+	
+	
+	
 	<div id="hypnoText-controls">
         <textarea id="hypnoText-input" placeholder="Enter subliminals here:&#10;(empty lines = blank delay)"></textarea>
 		<div><input id="hypnoText-delay-input" type="number" min="0" step="0.1" value="1.0"><label style="font-size: 1vh"> Delay (seconds)</label></div>
@@ -78,9 +84,7 @@
 	
 	
 	
-	
-	
-	<div id="spiral-controls">
+	<div id="spiral-menu">
 		<div class="zero-centered">
 			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1" class="slider-zeroCentered">
 			<button onclick="setToZero('globalSpeed')">Φ</button>
@@ -159,14 +163,17 @@
 		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider"><label for="backgroundImageOpacity"> Background Opacity</label></div>
 		<div id="spacing"></div>
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
+	</div>
+	
+	<div id="export-menu" style="display: none">
 		<div><button id="generateEditorBtn">Save Project to URL</button></div>
 		<div><button id="generateViewerBtn">Export Viewer to URL</button></div>
 		<div><button id="generateUnityBtn" onclick="generateUnityShader()">Export Spiral to Unity Shader (no text)</button></div>
-		<div><button id="open-render-settings-button" onclick="showElement('render-settings-menu')">Render Spiral (text-support hopefully coming soon)</button></div>
-		<a id="downloadAnchor" style="display: none;"></a>
-		<!-- <div id="spacing"></div>
-		<div id="fps" style="padding-left: 1vw;"></div> -->
+		<div><button id="open-render-settings-button" onclick="showElement('render-settings-menu')">Render Spiral</button></div>
+		<a id="downloadAnchor" style="display: none;"></a>	
 	</div>
+	
+	
 	
     <div id="looping-controls">
 		<div>
@@ -197,21 +204,52 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="spiral.js"></script>
 	<script src="url-params.js"></script>
+	
+	
+    <script>
+		var spiralMenu = document.getElementById('spiral-menu');
+		var exportMenu = document.getElementById('export-menu');
+		var menus = [spiralMenu, exportMenu];
+		
+        var menuButtons = document.getElementsByClassName('menu-toggle');
+        for (var i = 0; i < menuButtons.length; i++) {
+            menuButtons[i].addEventListener('click', changeMenu);
+        }
+
+        function hideAllMenus() {
+            menus.forEach((menu) => {
+                menu.style.display = 'none';
+            });
+        }
+
+        function changeMenu() {
+            for (var i = 0; i < menuButtons.length; i++) {
+                menuButtons[i].classList.remove('active');
+            }
+            this.classList.add('active');
+            
+            hideAllMenus();
+
+            // add JS below to ajust display property for each menu, so that only one is visible at a time, using the custom menu property on the tab control buttons
+            var menuToShow = this.getAttribute('menu');
+            document.getElementById(menuToShow).style.display = 'block';
+        }
+    </script>
 
 	<script>
-	function hideElement(elementID) {
-		var element = document.getElementById(elementID);
-		if (element) {
-			element.style.display = "none";
+		function hideElement(elementID) {
+			var element = document.getElementById(elementID);
+			if (element) {
+				element.style.display = "none";
+			}
 		}
-	}
 
-	function showElement(elementID) {
-		var element = document.getElementById(elementID);
-		if (element) {
-			element.style.display = ""; // This will reset the display property to its default value
+		function showElement(elementID) {
+			var element = document.getElementById(elementID);
+			if (element) {
+				element.style.display = ""; // This will reset the display property to its default value
+			}
 		}
-	}
 	</script>
 	
 	
@@ -359,8 +397,6 @@
 		
 		delayInput.addEventListener("input", updateLoopPeriod);
 		spaceInput.addEventListener("input", updateLoopPeriod);
-		
-		
 		
 		
 
@@ -524,14 +560,6 @@
             }
         });
 		
-		
-		
-		
-		
-		
-		
-		
-		
 	</script>
 	
     <script>
@@ -568,7 +596,8 @@
 			  slider.id !== "globalScale" &&
 			  slider.id !== "hypnoText-size-input" &&
 			  slider.id !== "hypnoText-fade-input" &&
-			  slider.id !== "loop-edgeFeather"
+			  slider.id !== "loop-edgeFeather" &&
+			  slider.id !== "backgroundImageOpacity"
 			) {
 			let randomValue;
 			if (Number.isInteger(parseFloat(slider.step))) {
