@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Spiral Editor</title>
+    <title>Spiral Viewer</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/mdbassit/Coloris@latest/dist/coloris.min.css">
@@ -11,11 +11,11 @@
 	<script src="CCapture.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 	<style>
-		#hypnoText-controls, #spiral-controls, #looping-controls {
-			display: none;
-		}
-	</style>
-
+			#hypnoText-controls, #tab-controls, #spiral-menu, #export-menu, #looping-controls {
+					display: none;
+			}
+	</style> 
+	
 	<!--
 		In an ideal world, we could load this straight from the GitHub page of lz-string: https://github.com/pieroxy/lz-string/tree/master
 		However, a world with hyperactive CORB is not an ideal world.
@@ -33,6 +33,12 @@
 	</div>
 	
 	
+	<div id="tab-controls">
+		<button id="button-spiral-menu" menu="spiral-menu" class="menu-toggle active" type="button_toggle">Spiral Menu</button>
+		<button id="button-export-menu" menu="export-menu" class="menu-toggle" type="button_toggle">Export Menu</button>
+	</div>
+	
+
 	
 	<div id="render-settings-menu" style="display: none">
 		<h1>Render Settings</h1>
@@ -52,10 +58,10 @@
 	
 	
 	
-	
-	
-	
 	<div id="hypnoText-container"></div>
+	
+	
+	
 	<div id="hypnoText-controls">
         <textarea id="hypnoText-input" placeholder="Enter subliminals here:&#10;(empty lines = blank delay)"></textarea>
 		<div><input id="hypnoText-delay-input" type="number" min="0" step="0.1" value="1.0"><label style="font-size: 1vh"> Delay (seconds)</label></div>
@@ -83,9 +89,7 @@
 	
 	
 	
-	
-	
-	<div id="spiral-controls">
+	<div id="spiral-menu">
 		<div class="zero-centered">
 			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1" class="slider-zeroCentered">
 			<button onclick="setToZero('globalSpeed')">Φ</button>
@@ -160,15 +164,21 @@
 		<div><input type="range" id="motionBlur" min="0" max="5" step="0.01" value="0.75" class="slider"><label for="motionBlur">Motion Blur</label></div>
 		<div><input type="range" id="superSample" min="1" max="8" step="1" value="4" class="slider"><label for="superSample">Super Sampling Factor (Blur / AA quality)</label></div>
 		<div id="spacing"></div>
+		<div><input id="backgroundImageInput" type="text"><label for="backgroundImageInput"> Background Image</label></div>
+		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider"><label for="backgroundImageOpacity"> Background Opacity</label></div>
+		<div id="spacing"></div>
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
+	</div>
+	
+	<div id="export-menu" style="display: none">
 		<div><button id="generateEditorBtn">Save Project to URL</button></div>
 		<div><button id="generateViewerBtn">Export Viewer to URL</button></div>
 		<div><button id="generateUnityBtn" onclick="generateUnityShader()">Export Spiral to Unity Shader (no text)</button></div>
-		<div><button id="open-render-settings-button" onclick="showElement('render-settings-menu')">Render Spiral (text-support hopefully coming soon)</button></div>
-		<a id="downloadAnchor" style="display: none;"></a>
-		<!-- <div id="spacing"></div>
-		<div id="fps" style="padding-left: 1vw;"></div> -->
+		<div><button id="open-render-settings-button" onclick="showElement('render-settings-menu')">Render Spiral</button></div>
+		<a id="downloadAnchor" style="display: none;"></a>	
 	</div>
+	
+	
 	
     <div id="looping-controls">
 		<div>
@@ -199,21 +209,52 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="spiral.js"></script>
 	<script src="url-params.js"></script>
+	
+	
+    <script>
+		var spiralMenu = document.getElementById('spiral-menu');
+		var exportMenu = document.getElementById('export-menu');
+		var menus = [spiralMenu, exportMenu];
+		
+        var menuButtons = document.getElementsByClassName('menu-toggle');
+        for (var i = 0; i < menuButtons.length; i++) {
+            menuButtons[i].addEventListener('click', changeMenu);
+        }
+
+        function hideAllMenus() {
+            menus.forEach((menu) => {
+                menu.style.display = 'none';
+            });
+        }
+
+        function changeMenu() {
+            for (var i = 0; i < menuButtons.length; i++) {
+                menuButtons[i].classList.remove('active');
+            }
+            this.classList.add('active');
+            
+            hideAllMenus();
+
+            // add JS below to ajust display property for each menu, so that only one is visible at a time, using the custom menu property on the tab control buttons
+            var menuToShow = this.getAttribute('menu');
+            document.getElementById(menuToShow).style.display = 'block';
+        }
+    </script>
 
 	<script>
-	function hideElement(elementID) {
-		var element = document.getElementById(elementID);
-		if (element) {
-			element.style.display = "none";
+		function hideElement(elementID) {
+			var element = document.getElementById(elementID);
+			if (element) {
+				element.style.display = "none";
+			}
 		}
-	}
 
-	function showElement(elementID) {
-		var element = document.getElementById(elementID);
-		if (element) {
-			element.style.display = ""; // This will reset the display property to its default value
+		function showElement(elementID) {
+			var element = document.getElementById(elementID);
+			if (element) {
+				element.style.display = ""; // This will reset the display property to its default value
+			}
 		}
-	}
 	</script>
 	
 	
@@ -361,8 +402,6 @@
 		
 		delayInput.addEventListener("input", updateLoopPeriod);
 		spaceInput.addEventListener("input", updateLoopPeriod);
-		
-		
 		
 		
 
@@ -525,14 +564,7 @@
                 });
             }
         });
-		
-		
-		
-		
-		
-		
-		
-		
+
 		
 	</script>
 	
@@ -570,7 +602,8 @@
 			  slider.id !== "globalScale" &&
 			  slider.id !== "hypnoText-size-input" &&
 			  slider.id !== "hypnoText-fade-input" &&
-			  slider.id !== "loop-edgeFeather"
+			  slider.id !== "loop-edgeFeather" &&
+			  slider.id !== "backgroundImageOpacity"
 			) {
 			let randomValue;
 			if (Number.isInteger(parseFloat(slider.step))) {
@@ -635,7 +668,6 @@
 				}
 			  }
 			  
-			  
 
 			  slider.value = randomValue;
 			  slider.dispatchEvent(new Event("input"));
@@ -687,5 +719,18 @@
 			window.open(url, '_blank');
 		}
 	</script>
+
+	<script>
+		document.getElementById("backgroundImageInput").addEventListener("input", (event) => {
+			var newSource = document.getElementById("backgroundImageInput").value;
+			document.getElementById("backgroundImage").src = newSource;
+		});
+
+		document.getElementById("backgroundImageOpacity").addEventListener("input", (event) => {
+			var newOpacity = document.getElementById("backgroundImageOpacity").value;
+			document.getElementById("backgroundImage").style.opacity = newOpacity;
+		});
+	</script>
+
 </body>
 </html>
