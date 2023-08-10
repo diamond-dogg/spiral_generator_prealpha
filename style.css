@@ -119,6 +119,17 @@ select {
 	resize: none;
 }
 
+
+input[type="text"].sliderNumPair {
+	background-color: rgba(0,0,0,0.0);
+	border-color: rgba(0,0,0,0);
+	border-bottom-color: rgba(0,0,0,0.5);
+	color: rgba(255,255,255,0.5);
+	width: 5vh;
+	font-size: 1.3vh;
+}
+
+
 input[type="number"] {
 	background-color: rgba(0,0,0,0.5);
 	color: rgba(255,255,255,0.5);
@@ -258,8 +269,6 @@ input[type="range"] {
 }
 
 
-
-
 .slider-zeroCentered {
 	-webkit-appearance: none;
 	width: 10vw;
@@ -310,6 +319,8 @@ input[type="range"] {
 	background-position: center center, left center;
 	background-repeat: no-repeat;
 }
+
+
 
 
 
