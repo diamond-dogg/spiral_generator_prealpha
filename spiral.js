@@ -290,7 +290,7 @@ const uniforms = {
 	SUPERSAMPLING_FACTOR: { value: 4 },
 	PULSE_HUE: { value: 0 },
 	EXP: { value: 1.0 },
-	FORCE_LOOP: { value: 1 },
+	FORCE_LOOP: { value: 0 },
 	LOOP_PERIOD: { value: 6.0 },
 	TRANS_TIME: { value: 5.0 },
 	LOOP_FEATHER: { value: 0.6 },
