@@ -103,6 +103,7 @@ select {
 	background-color: rgba(0,0,0,0.5);
 	color: rgba(255,255,255,0.5);
 	position: absolute;
+	top: 5vw;
 	right: 0;
 	width: 10vw;
 	height: 40vw;
@@ -208,6 +209,16 @@ button[type="button_toggle"].active {
 	font-size: calc(0.8vw);
 }
 
+#credits {
+	background-color: rgba(0,0,0,0.5);
+	padding: 1vw;
+	position: absolute;
+	top: 1.95vw;
+	display: inline-block;
+	color: rgba(255,255,255,0.5);
+	font-size: calc(0.8vw);
+}
+
 #spacing {
 	padding: calc(0.5vw);
 }
@@ -302,6 +313,7 @@ input[type="range"] {
 
 
 
+
 .slider-zeroCentered::-webkit-slider-runnable-track {
 	height: 0.25vw;
 	background: linear-gradient(to right, transparent 49%, black 49%, black 51%, transparent 51%),
@@ -319,6 +331,7 @@ input[type="range"] {
 	background-position: center center, left center;
 	background-repeat: no-repeat;
 }
+
 
 
 
