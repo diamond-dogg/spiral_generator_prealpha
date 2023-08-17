@@ -194,8 +194,8 @@
 	
     <div id="looping-controls">
 		<div>
-            <button id="forceLoop-button" type="button_toggle" class="active">Force Looping</button>
-			<input id="forceLoop-actualNum" type="number" min="0" max="1" step="1" value="1" style="display: none">
+            <button id="forceLoop-button" type="button_toggle" class="active">Preview Export Looping</button>
+			<input id="forceLoop-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
         </div>
         <div class="vertical-label-set">
             <label style="font-size: 1vh; margin-bottom: 0.2vh">Loop Period</label>
@@ -713,6 +713,7 @@
 			  }
 			  
 			  
+
 			  slider.value = randomValue;
 			  slider.dispatchEvent(new Event("input"));
 			}
