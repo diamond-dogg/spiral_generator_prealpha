@@ -110,7 +110,7 @@ const fragmentShader = `
 
 		
 		
-		if (FORCE_LOOP == 1) {
+		if (1==1) {
 			float timeA = mod(inTime, LOOP_PERIOD*2.0); // normal time
 			float timeB = mod(inTime+LOOP_PERIOD, LOOP_PERIOD*2.0); // out of phase time
 			
