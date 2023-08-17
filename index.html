@@ -28,10 +28,12 @@
 		</div>
 	</div>
 	
+	<div id="full-page">
 	
 	<div id="tab-controls">
 		<button id="button-spiral-menu" menu="spiral-menu" class="menu-toggle active" type="button_toggle">Spiral Menu</button>
 		<button id="button-export-menu" menu="export-menu" class="menu-toggle" type="button_toggle">Export Menu</button>
+		<button id="button-credits" menu="credits" class="menu-toggle" type="button_toggle">Credits</button>
 	</div>
 	
 
@@ -86,7 +88,6 @@
 	
 	
 	<div id="spiral-menu">
-		<div><button onclick="randomizeSliders()">Randomize</button></div>
 		<div class="zero-centered">
 			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1" class="slider-zeroCentered sliderNumPair">
 			<input type="text" value="1" class="sliderNumPair" id="globalSpeed-num">
@@ -175,7 +176,7 @@
 		<div><input id="backgroundImageInput" type="text"><label for="backgroundImageInput"> Background Image</label></div>
 		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider sliderNumPair"><label> </label><input type="text" value="0.1" class="sliderNumPair" id="backgroundImageOpacity-num"><label for="backgroundImageOpacity"> Background Opacity</label></div>
 		<div id="spacing"></div>
-		
+		<div><button onclick="randomizeSliders()">Randomize</button></div>
 	</div>
 	
 	<div id="export-menu" style="display: none">
@@ -186,12 +187,29 @@
 		<a id="downloadAnchor" style="display: none;"></a>	
 	</div>
 	
+	<div id="credits" style="display: none">
+		<h3>DiamondDogg: Creator</h3>
+		<p>• Did some stuff I guess idk</p>
+		<p>• Ate snacks</p>
+		<p>• Eepy</p>
+		<br>
+		<h3>AetherBreeze: Co-Creator</h3>
+		<p>• URL Shortener</p>
+		<p>• Some security Voodoo</p>
+		<p>• Text support for GIF export</p>
+		<p>• Background Images</p>
+		<p>• Other Such Witchcraft</p>
+		<br>
+		<br>
+		<h3>Huge thanks to Big Oil</h3>
+	</div>
+	
 	
 	
     <div id="looping-controls">
 		<div>
-            <button id="forceLoop-button" type="button_toggle" class="active">Force Looping</button>
-			<input id="forceLoop-actualNum" type="number" min="0" max="1" step="1" value="1" style="display: none">
+            <button id="forceLoop-button" type="button_toggle">Preview Export Looping</button>
+			<input id="forceLoop-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
         </div>
         <div class="vertical-label-set">
             <label style="font-size: 1vh; margin-bottom: 0.2vh">Loop Period</label>
@@ -212,6 +230,9 @@
     </div>
 	
     <button class="fullscreen" id="fullscreenButton" onclick="toggleFullScreen()" style="display: none;">fullscreen</button>
+	</div>
+	
+	
     <canvas id="spiralCanvas"></canvas>
     <image id="backgroundImage"></image>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -219,10 +240,32 @@
 	<script src="url-params.js"></script>
 	
 	
+	<script>
+		document.body.onkeydown = function(e) {
+			if (e.key == 'h' || e.key == 'H') {
+				const ids = [
+					'full-page'
+				];
+
+				// Loop through each element ID and toggle its display property 
+				ids.forEach(id => {
+					let elem = document.getElementById(id);
+					if (elem.style.display === 'none') {
+						elem.style.display = 'block';
+					} else {
+						elem.style.display = 'none';
+					}
+				});
+			}
+		};
+	</script>
+	
+	
     <script>
 		var spiralMenu = document.getElementById('spiral-menu');
 		var exportMenu = document.getElementById('export-menu');
-		var menus = [spiralMenu, exportMenu];
+		var credits = document.getElementById('credits');
+		var menus = [spiralMenu, exportMenu, credits];
 		
         var menuButtons = document.getElementsByClassName('menu-toggle');
         for (var i = 0; i < menuButtons.length; i++) {
@@ -639,6 +682,13 @@
                 selectElement.selectedIndex = 0;
             });
         }
+		
+		document.addEventListener("keydown", function(event) {
+		  if (event.key === "r" || event.key === "R"){
+			randomizeSliders();
+		  }
+		});
+		
 		function randomizeSliders() {
 		  document.querySelectorAll("input[type='range']").forEach(function (slider) {
 			if (
