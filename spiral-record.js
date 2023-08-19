@@ -228,7 +228,7 @@ const fragmentShader = `
 		
 		uv -= vec2(0.0, 1.01);
 		uv = c2p(uv);
-		uv.y += sin(iTime / PEND_PERIOD) * PEND_ANGLE;
+		uv.y += sin(iTime * (6.2831853 / PEND_PERIOD) * PEND_ANGLE;
 		uv = p2c(uv);
 		uv += vec2(0.0, PEND_LENGTH);
 		
