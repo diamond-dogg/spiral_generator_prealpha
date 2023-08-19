@@ -247,8 +247,7 @@ const fragmentShader = `
 		float left = clamp(remap(uv.x, stringWidth, stringWidth+0.002, 1.0, 0.0), 0.0, 1.0);
 		float right = clamp(remap(uv.x, -(stringWidth+0.002), -stringWidth, 0.0, 1.0), 0.0, 1.0);
 		float top = clamp(remap(uv.y, 0.0, 0.0, 0.0, 1.0), 0.0, 1.0);
-		float bottom = clamp(remap(uv.y, 0.0, 0.0, 1.01, 0.0), 0.0, 1.0);
-		float stringMask = left * right * top * bottom;
+		float stringMask = left * right * top;
 		stringMask = clamp(stringMask -outerMask, 0.0, 1.0);
 		
 		
