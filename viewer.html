@@ -12,7 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<style>
-			#hypnoText-controls, #tab-controls, #spiral-menu, #export-menu, #looping-controls {
+			#hypnoText-controls, #tab-controls, #spiral-menu, #pend-menu, #export-menu, #credits, #looping-controls {
 					display: none;
 			}
 	</style> 
@@ -36,7 +36,9 @@
 	
 	<div id="tab-controls">
 		<button id="button-spiral-menu" menu="spiral-menu" class="menu-toggle active" type="button_toggle">Spiral Menu</button>
+		<button id="button-pend-menu" menu="pend-menu" class="menu-toggle" type="button_toggle">Pendulum Mode</button>
 		<button id="button-export-menu" menu="export-menu" class="menu-toggle" type="button_toggle">Export Menu</button>
+		<button id="button-credits" menu="credits" class="menu-toggle" type="button_toggle">Credits</button>
 	</div>
 	
 
@@ -182,12 +184,41 @@
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
 	</div>
 	
+	<div id="pend-menu" style="display: none">
+        <button id="pend-on-button" type="button_toggle">Use Pendulum Mode</button>
+		<input id="pend-on-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
+		<div><input type="range" id="pend-period" min="0.1" max="2" step="0.01" value="1.0" class="slider sliderNumPair"><label> </label><input type="text" value="1.0" class="sliderNumPair" id="pend-period-num"><label for="pend-period"> Swing Period</label></div>
+		<div id="spacing"></div>
+		<div><input type="range" id="pend-angle" min="0.1" max="1.5" step="0.01" value="0.5" class="slider sliderNumPair"><label> </label><input type="text" value="0.5" class="sliderNumPair" id="pend-angle-num"><label for="pend-angle"> Maximum Angle</label></div>
+		<div id="spacing"></div>
+		<div><input type="range" id="pend-length" min="0.1" max="2" step="0.01" value="1.5" class="slider sliderNumPair"><label> </label><input type="text" value="1.5" class="sliderNumPair" id="pend-length-num"><label for="pend-length"> String Length</label></div>
+		<div id="spacing"></div>
+		<div><input type="range" id="pend-size" min="0.05" max="1" step="0.01" value="0.3" class="slider sliderNumPair"><label> </label><input type="text" value="0.3" class="sliderNumPair" id="pend-size-num"><label for="pend-size"> Pendulum Size</label></div>
+	</div>
+	
 	<div id="export-menu" style="display: none">
 		<div><button id="generateEditorBtn">Save Project to URL</button></div>
 		<div><button id="generateViewerBtn">Export Viewer to URL</button></div>
 		<div><button id="generateUnityBtn" onclick="generateUnityShader()">Export Spiral to Unity Shader (no text)</button></div>
 		<div><button id="open-render-settings-button" onclick="showElement('render-settings-menu')">Render Spiral</button></div>
 		<a id="downloadAnchor" style="display: none;"></a>	
+	</div>
+	
+	<div id="credits" style="display: none">
+		<h3>DiamondDogg: Creator</h3>
+		<p>• Did some stuff I guess idk</p>
+		<p>• Ate snacks</p>
+		<p>• Eepy</p>
+		<br>
+		<h3>AetherBreeze: Co-Creator</h3>
+		<p>• URL Shortener</p>
+		<p>• Some security Voodoo</p>
+		<p>• Text support for GIF export</p>
+		<p>• Background Images</p>
+		<p>• Other Such Witchcraft</p>
+		<br>
+		<br>
+		<h3>Huge thanks to Big Oil</h3>
 	</div>
 	
 	
@@ -226,7 +257,9 @@
     <script>
 		var spiralMenu = document.getElementById('spiral-menu');
 		var exportMenu = document.getElementById('export-menu');
-		var menus = [spiralMenu, exportMenu];
+		var pendMenu = document.getElementById('pend-menu');
+		var credits = document.getElementById('credits');
+		var menus = [spiralMenu, pendMenu, exportMenu, credits];
 		
         var menuButtons = document.getElementsByClassName('menu-toggle');
         for (var i = 0; i < menuButtons.length; i++) {
@@ -349,6 +382,8 @@
 		let forceLoopActualNum = document.getElementById('forceLoop-actualNum');
 		let reverseTransDirButton = document.getElementById('reverseTransDir-button');
 		let reverseTransDirActualNum = document.getElementById('reverseTransDir-actualNum');
+		let pendOnButton = document.getElementById('pend-on-button');
+		let pendOnActualNum = document.getElementById('pend-on-actualNum');
 
 		forceLoopButton.addEventListener('click', () => {
 			forceLoopButton.classList.toggle('active');
@@ -360,6 +395,12 @@
 			reverseTransDirButton.classList.toggle('active');
 			reverseTransDirActualNum.value = reverseTransDirButton.classList.contains('active') ? 1 : 0;
 			reverseTransDirActualNum.dispatchEvent(new Event("input"));
+		});
+		
+		pendOnButton.addEventListener('click', () => {
+			pendOnButton.classList.toggle('active');
+			pendOnActualNum.value = pendOnButton.classList.contains('active') ? 1 : 0;
+			pendOnActualNum.dispatchEvent(new Event("input"));
 		});
 
 		forceLoopActualNum.addEventListener('input', () => {
@@ -375,6 +416,14 @@
 				reverseTransDirButton.classList.add('active');
 			} else if (reverseTransDirActualNum.value == 0 && reverseTransDirButton.classList.contains('active')) {
 				reverseTransDirButton.classList.remove('active');
+			}
+		});
+		
+		pendOnActualNum.addEventListener('input', () => {
+			if (pendOnActualNum.value == 1 && !pendOnButton.classList.contains('active')) {
+				pendOnButton.classList.add('active');
+			} else if (pendOnActualNum.value == 0 && pendOnButton.classList.contains('active')) {
+				pendOnButton.classList.remove('active');
 			}
 		});
 	</script>
@@ -628,9 +677,14 @@
             document.querySelectorAll("input[type='number']").forEach(function(numField) {
                 numField.value = numField.defaultValue;
             });
-            document.querySelectorAll("input[type='text']").forEach(function(textfield) {
-                textfield.value = "";
-            });
+			// Replace text fields with their default values
+			document.querySelectorAll("input[type='text']").forEach(function(textfield) {
+				if(textfield.defaultValue) {
+					textfield.value = textfield.defaultValue;
+				} else {
+					textfield.value = "";
+				}
+			});
             document.querySelectorAll("textarea").forEach(function(textarea) {
                 textarea.value = "";
             });
@@ -638,6 +692,13 @@
                 selectElement.selectedIndex = 0;
             });
         }
+		
+		document.addEventListener("keydown", function(event) {
+		  if (event.key === "r" || event.key === "R"){
+			randomizeSliders();
+		  }
+		});
+		
 		function randomizeSliders() {
 		  document.querySelectorAll("input[type='range']").forEach(function (slider) {
 			if (
@@ -647,7 +708,11 @@
 			  slider.id !== "hypnoText-size-input" &&
 			  slider.id !== "hypnoText-fade-input" &&
 			  slider.id !== "loop-edgeFeather" &&
-			  slider.id !== "backgroundImageOpacity"
+			  slider.id !== "backgroundImageOpacity" &&
+			  slider.id !== "pend-period" &&
+			  slider.id !== "pend-angle" &&
+			  slider.id !== "pend-length" &&
+			  slider.id !== "pend-size"
 			) {
 			let randomValue;
 			if (Number.isInteger(parseFloat(slider.step))) {
