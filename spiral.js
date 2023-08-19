@@ -44,6 +44,13 @@ const fragmentShader = `
 	uniform float LOOP_FEATHER;
 	uniform int LOOP_REVERSE;
 	
+	uniform int PEND_ON;
+	uniform float PEND_PERIOD;
+	uniform float PEND_ANGLE;
+	uniform float PEND_LENGTH;
+	uniform float PEND_SIZE;
+	
+	
 	float rand(vec2 n) {
         return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
     }
@@ -92,6 +99,9 @@ const fragmentShader = `
 		// zero-centered uv space
 		vec2 p_shortNorm = vec2((fragCoord.x / iResolution.x - 0.5) * (iResolution.x / min(iResolution.x, iResolution.y)) * 2.0, (fragCoord.y / iResolution.y - 0.5) * (iResolution.y / min(iResolution.x, iResolution.y)) * 2.0);
 		vec2 p = p_shortNorm / GLOBAL_SCALE;
+		if (PEND_ON == 1) {
+			p /= PEND_SIZE;
+		}
 		
 		// aspect ratio of screen
 		float aspect = max(iResolution.x, iResolution.y) / min(iResolution.x, iResolution.y);
@@ -101,8 +111,6 @@ const fragmentShader = `
 		
 		
 		
-		
-
 		
 		
 		if (FORCE_LOOP == 1) {
@@ -208,10 +216,59 @@ const fragmentShader = `
 		
 		return result;
 	}
+	
+	// pendulum transform
+	vec2 pendulumUV( vec2 uv ) {
+		uv = vec2((uv.x / iResolution.x - 0.5) * (iResolution.x / min(iResolution.x, iResolution.y)) * 2.0, (uv.y / iResolution.y - 0.5) * (iResolution.y / min(iResolution.x, iResolution.y)) * 2.0);
+		
+		uv -= vec2(0.0, 1.01);
+		uv = c2p(uv);
+		uv.y += sin(iTime / PEND_PERIOD) * PEND_ANGLE;
+		uv = p2c(uv);
+		uv += vec2(0.0, PEND_LENGTH);
+		
+		uv = vec2((uv.x / 2.0 / (iResolution.x / min(iResolution.x, iResolution.y)) + 0.5) * iResolution.x, (uv.y / 2.0 / (iResolution.y / min(iResolution.x, iResolution.y)) + 0.5) * iResolution.y);
+		return uv;
+	}
+	
+	// pendulum drawing
+	vec3 pendulumDraw ( vec2 uv, vec3 color ) {
+		uv = vec2((uv.x / iResolution.x - 0.5) * (iResolution.x / min(iResolution.x, iResolution.y)) * 2.0, (uv.y / iResolution.y - 0.5) * (iResolution.y / min(iResolution.x, iResolution.y)) * 2.0);
+		vec2 polar = c2p(uv);
+		
+		float size = PEND_SIZE;
+		float borderWidth = 0.012;
+		float stringWidth = 0.004;
+		
+		float innerMask = clamp(remap(polar.x, size, size+0.002, 1.0, 0.0), 0.0, 1.0);
+		float outerMask = clamp(remap(polar.x, size+borderWidth, size+borderWidth+0.002, 1.0, 0.0), 0.0, 1.0);
+		float borderMask = clamp(outerMask - innerMask, 0.0, 1.0);
+		
+		float left = clamp(remap(uv.x, stringWidth, stringWidth+0.002, 1.0, 0.0), 0.0, 1.0);
+		float right = clamp(remap(uv.x, -(stringWidth+0.002), -stringWidth, 0.0, 1.0), 0.0, 1.0);
+		float top = clamp(remap(uv.y, 0.0, 0.0, 0.0, 1.0), 0.0, 1.0);
+		float stringMask = left * right * top;
+		stringMask = clamp(stringMask -outerMask, 0.0, 1.0);
+		
+		
+		
+		
+		color *= innerMask;
+		color += vec3(0.25) * (borderMask + stringMask);
+		
+		return color;
+	}
 
     void main() {
         vec2 fragCoord = gl_FragCoord.xy;
+		if (PEND_ON == 1) {
+			fragCoord = pendulumUV(fragCoord);
+		}
+		
         vec3 result = superSample(fragCoord);
+		if (PEND_ON == 1) {
+			result = pendulumDraw(fragCoord, result);
+		}
         gl_FragColor = vec4(result, 1.0);
     }
 `;
@@ -262,6 +319,11 @@ handleValueChange('loopPeriod', 'LOOP_PERIOD');
 handleValueChange('loop-transTime', 'TRANS_TIME');
 handleValueChange('loop-edgeFeather', 'LOOP_FEATHER');
 handleValueChange('reverseTransDir-actualNum', 'LOOP_REVERSE');
+handleValueChange('pend-on-actualNum', 'PEND_ON');
+handleValueChange('pend-period', 'PEND_PERIOD');
+handleValueChange('pend-angle', 'PEND_ANGLE');
+handleValueChange('pend-length', 'PEND_LENGTH');
+handleValueChange('pend-size', 'PEND_SIZE');
 
 
 const uniforms = {
@@ -295,6 +357,11 @@ const uniforms = {
 	TRANS_TIME: { value: 5.0 },
 	LOOP_FEATHER: { value: 0.6 },
 	LOOP_REVERSE: { value: 0 },
+	PEND_ON: { value: 0 },
+	PEND_PERIOD: { value: 1.0 },
+	PEND_ANGLE: { value: 0.5 },
+	PEND_LENGTH: { value: 1.5 },
+	PEND_SIZE: { value: 0.3 },
 };
 
 const material = new THREE.ShaderMaterial({
