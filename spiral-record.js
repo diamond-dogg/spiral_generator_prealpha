@@ -1,6 +1,11 @@
 const canvas = document.getElementById('spiralCanvas');
 const renderer = new THREE.WebGLRenderer({ canvas });
 
+const compositeCanvas = document.getElementById("compositeCanvas");
+const compositeCanvasContext = compositeCanvas.getContext("2d");
+
+const hypnoText = document.getElementById("hypnoText-container");
+
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 const scene = new THREE.Scene();
 const plane = new THREE.PlaneBufferGeometry(2, 2);
