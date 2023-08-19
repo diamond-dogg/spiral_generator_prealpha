@@ -42,6 +42,11 @@ const inputList = [
 	{ elementType: 'input', inputType: 'number', inputId: 'render-height' },
 	{ elementType: 'input', inputType: 'number', inputId: 'render-framerate' },
 	{ elementType: 'select', inputType: 'select', inputId: 'render-format'},
+	{ elementType: 'input', inputType: 'number', inputId: 'pend-on-actualNum' },
+	{ elementType: 'input', inputType: 'range', inputId: 'pend-period' },
+	{ elementType: 'input', inputType: 'range', inputId: 'pend-angle' },
+	{ elementType: 'input', inputType: 'range', inputId: 'pend-length' },
+	{ elementType: 'input', inputType: 'range', inputId: 'pend-size' },
 ];
 
 function generateURL(urlType) {
