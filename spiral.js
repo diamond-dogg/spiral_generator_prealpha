@@ -358,7 +358,7 @@ const uniforms = {
 	LOOP_FEATHER: { value: 0.6 },
 	LOOP_REVERSE: { value: 0 },
 	PEND_ON: { value: 0 },
-	PEND_PERIOD: { value: 1.0 },
+	PEND_PERIOD: { value: 6.0 },
 	PEND_ANGLE: { value: 0.5 },
 	PEND_LENGTH: { value: 1.5 },
 	PEND_SIZE: { value: 0.3 },
