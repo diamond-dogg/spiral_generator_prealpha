@@ -32,6 +32,7 @@
 	
 	<div id="tab-controls">
 		<button id="button-spiral-menu" menu="spiral-menu" class="menu-toggle active" type="button_toggle">Spiral Menu</button>
+		<button id="button-pend-menu" menu="pend-menu" class="menu-toggle" type="button_toggle">Pendulum Mode</button>
 		<button id="button-export-menu" menu="export-menu" class="menu-toggle" type="button_toggle">Export Menu</button>
 		<button id="button-credits" menu="credits" class="menu-toggle" type="button_toggle">Credits</button>
 	</div>
@@ -40,7 +41,7 @@
 	
 	<div id="render-settings-menu" style="display: none">
 		<h1>Render Settings</h1>
-		<p>Force Looping should be enabled when rendering your spiral. Render length is defined by Loop Period.<br>GIFs should be kept low-resolution and low-fps to keep file-size reasonable for web-viewing.</p>
+		<p>Use "Preview Export Looping" button to preview the loop used during export. Render length is defined by Loop Period.<br>If using Pendulum Mode, 'Loop Period' should be a multiple of 'Swing Period'.<br>GIFs should be kept low-resolution and low-fps to keep file-size reasonable for web-viewing.</p>
 		<br>
 		<button id="exit-render-settings-button" style="font-size: 15px; position: absolute; top: 10px; right: 10px;" onclick="hideElement('render-settings-menu')">X</button>
 		<label style="font-size: 15px">Format: </label>
@@ -88,6 +89,7 @@
 	
 	
 	<div id="spiral-menu">
+		<div><button onclick="randomizeSliders()">Randomize Spiral (hotkey: R)</button></div>
 		<div class="zero-centered">
 			<input type="range" id="globalSpeed" min="-5" max="5" step="0.01" value="1" class="slider-zeroCentered sliderNumPair">
 			<input type="text" value="1" class="sliderNumPair" id="globalSpeed-num">
@@ -175,8 +177,18 @@
 		<div id="spacing"></div>
 		<div><input id="backgroundImageInput" type="text"><label for="backgroundImageInput"> Background Image</label></div>
 		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider sliderNumPair"><label> </label><input type="text" value="0.1" class="sliderNumPair" id="backgroundImageOpacity-num"><label for="backgroundImageOpacity"> Background Opacity</label></div>
+	</div>
+	
+	<div id="pend-menu" style="display: none">
+        <button id="pend-on-button" type="button_toggle">Use Pendulum Mode</button>
+		<input id="pend-on-actualNum" type="number" min="0" max="1" step="1" value="0" style="display: none">
+		<div><input type="range" id="pend-period" min="0.1" max="2" step="0.01" value="1.0" class="slider sliderNumPair"><label> </label><input type="text" value="1.0" class="sliderNumPair" id="pend-period-num"><label for="pend-period"> Swing Period</label></div>
 		<div id="spacing"></div>
-		<div><button onclick="randomizeSliders()">Randomize</button></div>
+		<div><input type="range" id="pend-angle" min="0.1" max="1.5" step="0.01" value="0.5" class="slider sliderNumPair"><label> </label><input type="text" value="0.5" class="sliderNumPair" id="pend-angle-num"><label for="pend-angle"> Maximum Angle</label></div>
+		<div id="spacing"></div>
+		<div><input type="range" id="pend-length" min="0.1" max="2" step="0.01" value="1.5" class="slider sliderNumPair"><label> </label><input type="text" value="1.5" class="sliderNumPair" id="pend-length-num"><label for="pend-length"> String Length</label></div>
+		<div id="spacing"></div>
+		<div><input type="range" id="pend-size" min="0.05" max="1" step="0.01" value="0.3" class="slider sliderNumPair"><label> </label><input type="text" value="0.3" class="sliderNumPair" id="pend-size-num"><label for="pend-size"> Pendulum Size</label></div>
 	</div>
 	
 	<div id="export-menu" style="display: none">
@@ -199,6 +211,20 @@
 		<p>• Text support for GIF export</p>
 		<p>• Background Images</p>
 		<p>• Other Such Witchcraft</p>
+		<br>
+		<h3>Cole the Arctic Fox: Hypnotic Consultant</h3>
+		<p>• Helpful suggestions</p>
+		<p>• Dropping team members</p>
+		<p>• Sinking team members</p>
+		<p>• TFing team members</p>
+		<p>• Other things</p>
+		<br>
+		<h3>Lucian (VampBirb): Hypnotic Consultant</h3>
+		<p>• Helpful suggestions</p>
+		<p>• Dropping team members</p>
+		<p>• Blanking team members</p>
+		<p>• Butlering team members</p>
+		<p>• Other things</p>
 		<br>
 		<br>
 		<h3>Huge thanks to Big Oil</h3>
@@ -264,8 +290,9 @@
     <script>
 		var spiralMenu = document.getElementById('spiral-menu');
 		var exportMenu = document.getElementById('export-menu');
+		var pendMenu = document.getElementById('pend-menu');
 		var credits = document.getElementById('credits');
-		var menus = [spiralMenu, exportMenu, credits];
+		var menus = [spiralMenu, pendMenu, exportMenu, credits];
 		
         var menuButtons = document.getElementsByClassName('menu-toggle');
         for (var i = 0; i < menuButtons.length; i++) {
@@ -388,6 +415,8 @@
 		let forceLoopActualNum = document.getElementById('forceLoop-actualNum');
 		let reverseTransDirButton = document.getElementById('reverseTransDir-button');
 		let reverseTransDirActualNum = document.getElementById('reverseTransDir-actualNum');
+		let pendOnButton = document.getElementById('pend-on-button');
+		let pendOnActualNum = document.getElementById('pend-on-actualNum');
 
 		forceLoopButton.addEventListener('click', () => {
 			forceLoopButton.classList.toggle('active');
@@ -399,6 +428,12 @@
 			reverseTransDirButton.classList.toggle('active');
 			reverseTransDirActualNum.value = reverseTransDirButton.classList.contains('active') ? 1 : 0;
 			reverseTransDirActualNum.dispatchEvent(new Event("input"));
+		});
+		
+		pendOnButton.addEventListener('click', () => {
+			pendOnButton.classList.toggle('active');
+			pendOnActualNum.value = pendOnButton.classList.contains('active') ? 1 : 0;
+			pendOnActualNum.dispatchEvent(new Event("input"));
 		});
 
 		forceLoopActualNum.addEventListener('input', () => {
@@ -414,6 +449,14 @@
 				reverseTransDirButton.classList.add('active');
 			} else if (reverseTransDirActualNum.value == 0 && reverseTransDirButton.classList.contains('active')) {
 				reverseTransDirButton.classList.remove('active');
+			}
+		});
+		
+		pendOnActualNum.addEventListener('input', () => {
+			if (pendOnActualNum.value == 1 && !pendOnButton.classList.contains('active')) {
+				pendOnButton.classList.add('active');
+			} else if (pendOnActualNum.value == 0 && pendOnButton.classList.contains('active')) {
+				pendOnButton.classList.remove('active');
 			}
 		});
 	</script>
@@ -698,7 +741,11 @@
 			  slider.id !== "hypnoText-size-input" &&
 			  slider.id !== "hypnoText-fade-input" &&
 			  slider.id !== "loop-edgeFeather" &&
-			  slider.id !== "backgroundImageOpacity"
+			  slider.id !== "backgroundImageOpacity" &&
+			  slider.id !== "pend-period" &&
+			  slider.id !== "pend-angle" &&
+			  slider.id !== "pend-length" &&
+			  slider.id !== "pend-size"
 			) {
 			let randomValue;
 			if (Number.isInteger(parseFloat(slider.step))) {
@@ -762,6 +809,7 @@
 					randomValue *= 0.3;
 				}
 			  }
+			  
 			  
 
 			  slider.value = randomValue;
