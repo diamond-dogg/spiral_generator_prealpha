@@ -76,18 +76,6 @@ select {
 
 
 
-#tab-controls {
-	color: rgba(255,255,255,0.5);
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 25vw;
-	height: 2vw;
-	resize: none;
-	font-size: calc(0.8vw);
-}
-
-
 #hypnoText-container {
     position: fixed;
     top: 50%;
@@ -189,7 +177,28 @@ button[type="button_toggle"].active {
   align-items: center;
 }
 
+#tab-controls {
+	color: rgba(255,255,255,0.5);
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 35vw;
+	height: 2vw;
+	resize: none;
+	font-size: calc(0.8vw);
+}
+
 #spiral-menu {
+	background-color: rgba(0,0,0,0.5);
+	padding: 1vw;
+	position: absolute;
+	top: 1.95vw;
+	display: inline-block;
+	color: rgba(255,255,255,0.5);
+	font-size: calc(0.8vw);
+}
+
+#pend-menu {
 	background-color: rgba(0,0,0,0.5);
 	padding: 1vw;
 	position: absolute;
@@ -331,7 +340,6 @@ input[type="range"] {
 	background-position: center center, left center;
 	background-repeat: no-repeat;
 }
-
 
 
 
