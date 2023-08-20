@@ -22,6 +22,7 @@
 		However, a world with hyperactive CORB is not an ideal world.
 	-->
 	<script type="text/javascript" src="lz-string.min.js"></script>
+	<script type="text/javascript" src="utils.js"></script>
 </head>
 <body onload="resetInputs(); getUrlParams();">
 	<div class="warning-modal-full-page" id="warningModal-fullPage">
@@ -182,6 +183,8 @@
 		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider sliderNumPair"><label> </label><input type="text" value="0.1" class="sliderNumPair" id="backgroundImageOpacity-num"><label for="backgroundImageOpacity"> Background Opacity</label></div>
 		<div id="spacing"></div>
 		<div><button onclick="randomizeSliders()">Randomize</button></div>
+		<div id="spacing"></div>
+		<div><button id="backgroundImageStretchButton" onclick="util_toggleUseFixedSizeBackgroundImage()">Turn Off Background Image Stretching</button></div>
 	</div>
 	
 	<div id="pend-menu" style="display: none">

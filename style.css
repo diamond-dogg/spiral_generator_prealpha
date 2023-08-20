@@ -144,6 +144,7 @@ input[type="number"] {
 	opacity: 0.1;
 	z-index: -1;
 	object-fit: cover;
+	margin: auto;
 }
 
 #hypnoText-randomize-button {
@@ -154,6 +155,12 @@ input[type="number"] {
 button[type="button_toggle"].active {
 	color: white;
 	text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+#button-hide-ui {
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 #looping-controls {
