@@ -17,6 +17,7 @@
 		However, a world with hyperactive CORB is not an ideal world.
 	-->
 	<script type="text/javascript" src="lz-string.min.js"></script>
+	<script type="text/javascript" src="utils.js"></script>
 </head>
 <body onload="resetInputs(); getUrlParams();">
 	<div class="warning-modal-full-page" id="warningModal-fullPage">
@@ -37,6 +38,7 @@
 		<button id="button-credits" menu="credits" class="menu-toggle" type="button_toggle">Credits</button>
 	</div>
 	
+	<button id="button-hide-ui" onclick="utils_sendHideUI()">Toggle Hide UI (H)</button>
 
 	
 	<div id="render-settings-menu" style="display: none">
@@ -177,6 +179,8 @@
 		<div id="spacing"></div>
 		<div><input id="backgroundImageInput" type="text"><label for="backgroundImageInput"> Background Image</label></div>
 		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider sliderNumPair"><label> </label><input type="text" value="0.1" class="sliderNumPair" id="backgroundImageOpacity-num"><label for="backgroundImageOpacity"> Background Opacity</label></div>
+		<div id="spacing"></div>
+		<div><button id="backgroundImageStretchButton" onclick="util_toggleUseFixedSizeBackgroundImage()">Turn Off Background Image Stretching</button></div>
 	</div>
 	
 	<div id="pend-menu" style="display: none">
@@ -267,7 +271,15 @@
 	
 	
 	<script>
-		document.body.onkeydown = function(e) {
+		document.body.addEventListener("keydown", function(e) {
+			// Don't interefere with people typing in text areas
+			let activeElement = document.activeElement
+			console.log("nodename: " + activeElement.nodeName);
+			console.log("type: " + activeElement.getAttribute("type"));
+			if (activeElement.nodeName == "TEXTAREA" || (activeElement.nodeName == "INPUT" && activeElement.getAttribute("type") == "text")) {
+				return;
+			}
+
 			if (e.key == 'h' || e.key == 'H') {
 				const ids = [
 					'full-page'
@@ -283,7 +295,10 @@
 					}
 				});
 			}
-		};
+			else  if (e.key === "r" || e.key === "R"){
+				randomizeSliders();
+		  	}
+		});
 	</script>
 	
 	
@@ -726,12 +741,6 @@
             });
         }
 		
-		document.addEventListener("keydown", function(event) {
-		  if (event.key === "r" || event.key === "R"){
-			randomizeSliders();
-		  }
-		});
-		
 		function randomizeSliders() {
 		  document.querySelectorAll("input[type='range']").forEach(function (slider) {
 			if (
@@ -865,8 +874,20 @@
 
 	<script>
 		document.getElementById("backgroundImageInput").addEventListener("input", (event) => {
+			let backgroundImage = document.getElementById("backgroundImage");
+
 			var newSource = document.getElementById("backgroundImageInput").value;
-			document.getElementById("backgroundImage").src = newSource;
+			if(newSource) {
+				backgroundImage.src = newSource;
+				backgroundImage.style.display = "block";
+			}
+			else {
+				backgroundImage.removeAttribute("src");
+				backgroundImage.style.display = "none";
+
+				// Prevent fixed-image resizing from sticking around after the background image is removed.
+        		document.getElementById("spiralCanvas").style = "";
+			}
 		});
 
 		document.getElementById("backgroundImageOpacity").addEventListener("input", (event) => {
