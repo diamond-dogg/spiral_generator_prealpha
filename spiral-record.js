@@ -419,7 +419,7 @@ function composite() {
     // Step 3: if there's a background image, draw it at its given opacity
     if(backgroundImage) {
         compositeCanvasContext.globalAlpha = document.getElementById("backgroundImage").style.opacity;
-		compositeCanvasContext.drawImage(backgroundImage, 0, 0, renderWidth, renderHeight);
+	compositeCanvasContext.drawImage(backgroundImage, 0, 0, renderWidth, renderHeight);
     }
 
     // Step 4 (the fun part): draw the text
@@ -473,7 +473,7 @@ function recRender(time) {
 
     if (recFrameCount < maxFrames) {
         composite();
-		capturer.capture(compositeCanvas);
+	capturer.capture(compositeCanvas);
         recFrameCount++;
     } else if (recFrameCount === maxFrames) {
         capturer.stop();
