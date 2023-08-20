@@ -47,6 +47,7 @@ const inputList = [
 	{ elementType: 'input', inputType: 'range', inputId: 'pend-angle' },
 	{ elementType: 'input', inputType: 'range', inputId: 'pend-length' },
 	{ elementType: 'input', inputType: 'range', inputId: 'pend-size' },
+	{ elementType: 'button', inputType: 'button_toggle', inputId: 'backgroundImageStretchButton' },
 ];
 
 function generateURL(urlType) {
@@ -143,7 +144,7 @@ function onFontPickerChange(inputElement, value) {
 
 
 
-function getUrlParams() {
+function getUrlParams(isRendering = false) {
 	let urlParams = window.location.search;
 	if (!urlParams.includes('&')) {
 		urlParams = LZString.decompressFromEncodedURIComponent(urlParams.substring(1));
@@ -154,6 +155,7 @@ function getUrlParams() {
 
     console.log(urlParams.toString());
 
+	var backgroundImage = document.getElementById("backgroundImage")
     values.forEach((value, index) => {
         let inputInfo = inputList[index];
         if (inputInfo) {
@@ -168,10 +170,18 @@ function getUrlParams() {
 				let imageSource = decodeURIComponent(value);
 				if(imageSource) {
 					// Avoid setting the source to an empty string, which leads to thoroughly haunted problems later
-					document.getElementById("backgroundImage").src = imageSource;
+					backgroundImage.src = imageSource;
 				}
 			} else if (inputInfo.inputId == "backgroundImageOpacity") {
-				document.getElementById("backgroundImage").style.opacity = decodeURIComponent(value);
+				backgroundImage.style.opacity = decodeURIComponent(value);
+			}
+			else if (inputInfo.inputId == "backgroundImageStretchButton" && !isRendering) {
+				// Make sure not to stretch the image when rendering; it's handled automatically.
+				if(decodeURIComponent(value) == "true") {
+					backgroundImage.onload = () => {
+						util_toggleUseFixedSizeBackgroundImage();
+					}
+				}
 			}
 
             if (inputElement) {
