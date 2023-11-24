@@ -34,6 +34,7 @@
 	<div id="tab-controls">
 		<button id="button-spiral-menu" menu="spiral-menu" class="menu-toggle active" type="button_toggle">Spiral Menu</button>
 		<button id="button-pend-menu" menu="pend-menu" class="menu-toggle" type="button_toggle">Pendulum Mode</button>
+		<button id="button-embed-menu" menu="embed-menu" class="menu-toggle" type="button_toggle">Embed Menu</button>
 		<button id="button-export-menu" menu="export-menu" class="menu-toggle" type="button_toggle">Export Menu</button>
 		<button id="button-credits" menu="credits" class="menu-toggle" type="button_toggle">Credits</button>
 	</div>
@@ -60,7 +61,7 @@
 	
 	
 	<div id="hypnoText-container"></div>
-	
+	<div id="audioContainer" style="display:none"></div>
 	
 	
 	<div id="hypnoText-controls">
@@ -176,11 +177,6 @@
 		<div id="spacing"></div>
 		<div><input type="range" id="motionBlur" min="0" max="5" step="0.01" value="0.75" class="slider sliderNumPair"><label> </label><input type="text" value="0.75" class="sliderNumPair" id="motionBlur-num"><label for="motionBlur"> Motion Blur</label></div>
 		<div><input type="range" id="superSample" min="1" max="8" step="1" value="4" class="slider sliderNumPair"><label> </label><input type="text" value="4" class="sliderNumPair" id="superSample-num"><label for="superSample"> Super Sampling Factor (Blur / AA quality)</label></div>
-		<div id="spacing"></div>
-		<div><input id="backgroundImageInput" type="text"><label for="backgroundImageInput"> Background Image</label></div>
-		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider sliderNumPair"><label> </label><input type="text" value="0.1" class="sliderNumPair" id="backgroundImageOpacity-num"><label for="backgroundImageOpacity"> Background Opacity</label></div>
-		<div id="spacing"></div>
-		<div><button id="backgroundImageStretchButton" onclick="util_toggleUseFixedSizeBackgroundImage()">Turn Off Background Image Stretching</button></div>
 	</div>
 	
 	<div id="pend-menu" style="display: none">
@@ -193,6 +189,16 @@
 		<div><input type="range" id="pend-length" min="0.1" max="2" step="0.01" value="1.5" class="slider sliderNumPair"><label> </label><input type="text" value="1.5" class="sliderNumPair" id="pend-length-num"><label for="pend-length"> String Length</label></div>
 		<div id="spacing"></div>
 		<div><input type="range" id="pend-size" min="0.05" max="1" step="0.01" value="0.3" class="slider sliderNumPair"><label> </label><input type="text" value="0.3" class="sliderNumPair" id="pend-size-num"><label for="pend-size"> Pendulum Size</label></div>
+	</div>
+	
+	<div id="embed-menu" style="display: none">
+		<div><input id="backgroundImageInput" type="text" placeholder="Image/GIF"><label for="backgroundImageInput"> Background Image</label></div>
+		<div><input type="range" id="backgroundImageOpacity" min="0" max="1" step="0.01" value="0.1" class="slider sliderNumPair"><label> </label><input type="text" value="0.1" class="sliderNumPair" id="backgroundImageOpacity-num"><label for="backgroundImageOpacity"> Background Opacity</label></div>
+		<div><button id="backgroundImageStretchButton" onclick="util_toggleUseFixedSizeBackgroundImage()">Turn Off Background Image Stretching</button></div>
+		<div id="spacing"></div>
+		<div><input id="audioInput" type="text" placeholder="YouTube/MP3/WAV"><label for="audioInput"> Background Audio</label></div>
+		<button onclick="embedAudio()">Preview Audio</button>
+		<button onclick="stopAudio()">Stop Previewing</button>
 	</div>
 	
 	<div id="export-menu" style="display: none">
@@ -218,17 +224,11 @@
 		<br>
 		<h3>Cole the Arctic Fox: Hypnotic Consultant</h3>
 		<p>• Helpful suggestions</p>
-		<p>• Dropping team members</p>
-		<p>• Sinking team members</p>
-		<p>• TFing team members</p>
-		<p>• Other things</p>
+		<p>• Hypnotizing team members</p>
 		<br>
 		<h3>Lucian (VampBirb): Hypnotic Consultant</h3>
 		<p>• Helpful suggestions</p>
-		<p>• Dropping team members</p>
-		<p>• Blanking team members</p>
-		<p>• Butlering team members</p>
-		<p>• Other things</p>
+		<p>• Hypnotizing team members</p>
 		<br>
 		<br>
 		<h3>Huge thanks to Big Oil</h3>
@@ -306,8 +306,9 @@
 		var spiralMenu = document.getElementById('spiral-menu');
 		var exportMenu = document.getElementById('export-menu');
 		var pendMenu = document.getElementById('pend-menu');
+		var embedMenu = document.getElementById('embed-menu');
 		var credits = document.getElementById('credits');
-		var menus = [spiralMenu, pendMenu, exportMenu, credits];
+		var menus = [spiralMenu, pendMenu, embedMenu, exportMenu, credits];
 		
         var menuButtons = document.getElementsByClassName('menu-toggle');
         for (var i = 0; i < menuButtons.length; i++) {
@@ -331,6 +332,37 @@
             // add JS below to ajust display property for each menu, so that only one is visible at a time, using the custom menu property on the tab control buttons
             var menuToShow = this.getAttribute('menu');
             document.getElementById(menuToShow).style.display = 'block';
+        }
+    </script>
+	
+	    <script>
+        function embedAudio() {
+            var link = document.getElementById('audioInput').value;
+
+            // Check if the link is a YouTube link
+            if (link.includes('youtube.com')) {
+                var videoId = link.split('v=')[1];
+                var ampersandPosition = videoId.indexOf('&');
+                if(ampersandPosition !== -1) {
+                    videoId = videoId.substring(0, ampersandPosition);
+                }
+
+                var iframeHTML = '<iframe class="hidden-audio" src="https://www.youtube.com/embed/' + 
+                                 videoId + '?autoplay=1&loop=1&playlist=' + videoId + 
+                                 '" allow="autoplay"></iframe>';
+                document.getElementById('audioContainer').innerHTML = iframeHTML;
+            }
+            // If not a link to YouTube, just assume it's to an audio file idk broski
+            else {
+                var audioHTML = '<audio class="hidden-audio" src="' + link + 
+                                '" autoplay loop></audio>';
+                document.getElementById('audioContainer').innerHTML = audioHTML;
+            }
+        }
+
+        function stopAudio() {
+            var audioContainer = document.getElementById('audioContainer');
+            audioContainer.innerHTML = ''; // This will remove the iframe or audio tag, stopping the playback
         }
     </script>
 	
@@ -818,7 +850,6 @@
 					randomValue *= 0.3;
 				}
 			  }
-			  
 			  
 
 			  slider.value = randomValue;
