@@ -95,7 +95,7 @@ function generateURL(urlType) {
 	}
 	
 	var shortenerApiUrl = "https://is.gd/create.php?format=simple&url=" + url
-	fetch("https://corsproxy.io/?" + encodeURIComponent(shortenerApiUrl)).then((response) => {
+	fetch("https://corsproxy.org/?" + encodeURIComponent(shortenerApiUrl)).then((response) => {
 		if(response.ok) {
 			response.text().then((text) => {
 				let shortUrlCode = text.split("/").slice(-1);
