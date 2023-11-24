@@ -48,6 +48,7 @@ const inputList = [
 	{ elementType: 'input', inputType: 'range', inputId: 'pend-length' },
 	{ elementType: 'input', inputType: 'range', inputId: 'pend-size' },
 	{ elementType: 'button', inputType: 'button_toggle', inputId: 'backgroundImageStretchButton' },
+	{ elementType: 'input', inputType: 'text', inputId: 'audioInput'},
 ];
 
 function generateURL(urlType) {
