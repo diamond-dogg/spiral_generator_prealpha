@@ -94,26 +94,23 @@ function generateURL(urlType) {
 		var copyURL = openRenderURL;
 	}
 	
-	var shortenerApiUrl = "https://is.gd/create.php?format=simple&url=" + url
-	fetch("https://corsproxy.org/?" + encodeURIComponent(shortenerApiUrl)).then((response) => {
+	fetch("https://api.wheel.to/v1/link/", {
+		method: "POST",
+		body: JSON.stringify({
+			long_url: url
+		})
+	}).then((response) => {
 		if(response.ok) {
 			response.text().then((text) => {
-				let shortUrlCode = text.split("/").slice(-1);
-				copyURL("https://diamond-dogg.github.io/spiral_generator_prealpha/short.html?" + shortUrlCode);
+				var jsonResponse = JSON.parse(text);
+				copyURL("https://diamond-dogg.github.io/spiral_generator_prealpha/short.html?" + jsonResponse.id);
 			})
 		}
 		else {
-			console.log("Link shortener (or CORS proxy) returned non-OK!")
-			console.log(response);
-			console.log(response.status);
-			console.log(response.text());
+			console.log("Link shortener returned non-OK status: " + response.status);
 			copyURL(url);
 		}
-	}).catch((error) => {
-		console.log("Error when calling link shortener service:");
-		console.log(error);
-		copyURL(url);
-	});
+	})
 }
 
 
