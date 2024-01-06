@@ -10,25 +10,48 @@
         }
         else {
             // bounce to an "actual" link shortener, which then redirects to our viewer
-            let shortenedUrl = "https://wheel.to/" + document.location.search.substring(1);
-            fetch("https://corsproxy.io/?" + encodeURIComponent(shortenedUrl)).then((response) => {
-                console.log(response.url.substring(0, 57));
-                if(response.ok) {
-                    if(response.url.length > 56 && response.url.substring(0, 57) == "https://diamond-dogg.github.io/spiral_generator_prealpha/") {
-                        window.location.replace(response.url);
+            let possibleShortenedUrls = [
+                "https://wheel.to/" + document.location.search.substring(1),
+                "https://is.gd/" + document.location.search.substring(1)
+            ];
+
+            // Try all past link shorteners at once, then go to the first one that resolves correctly
+            // We SHOULD be using atomics to count the number of remaining requests
+            // but that requires using SharedArrayBuffer, which is disabled in Chrome because of speculative execution vulnerabilities.
+            // If you thought you could make a hypnospiral site without considering CPU side-channel attacks, you clearly haven't worked with computers for long enough.
+            let outstandingRequests = possibleShortenedUrls.length
+            for(var shortenedUrl of possibleShortenedUrls) {
+                fetch("https://corsproxy.io/?" + encodeURIComponent(shortenedUrl)).then((response) => {
+                    if(response.ok) {
+                        if(response.url.length > 56 && response.url.substring(0, 57) == "https://diamond-dogg.github.io/spiral_generator_prealpha/") {
+                            // If this is the first successful redirect, go to it
+                            if(window.location.pathname.endsWith("short.html")) {
+                                window.location.replace(response.url);
+                            }
+                            else {
+                                console.log("Got another successful redirect response to " + response.url);
+                            }
+                        }
+                        else {
+                            outstandingRequests -= 1
+                            if(outstandingRequests == 0) {
+                                window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/");
+                            }
+                        }
                     }
                     else {
-                        console.log("Invalid redirect found! Going back to home...");
+                        outstandingRequests -= 1
+                        if(outstandingRequests == 0) {
+                            window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/");
+                        }
+                    }
+                }).catch((error) => {
+                    outstandingRequests -= 1
+                    if(outstandingRequests == 0) {
                         window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/");
                     }
-                }
-                else {
-                    console.log("Redirect URL returned non-OK status code " + response.ok);
-                    window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/");
-                }
-            }).catch((error) => {
-                window.location.replace("https://diamond-dogg.github.io/spiral_generator_prealpha/")
-            });
+                })
+            }
         }
     </script>
 </body>
