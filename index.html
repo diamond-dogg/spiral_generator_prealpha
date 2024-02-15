@@ -880,6 +880,7 @@
 		
 		function copyEditorURLToClipboard(url) {
 			navigator.clipboard.writeText(url).then(function() {
+				window.open(url, '_blank');
 				saveProjectButton.textContent = "Link Copied";
 				saveProjectButton.style = "color: rgba(255, 255, 255, 0.75)";
 				setTimeout(() => {
@@ -890,6 +891,7 @@
 		}
 		function copyViewerURLToClipboard(url) {
 			navigator.clipboard.writeText(url).then(function() {
+				window.open(url, '_blank');
 				shareViewerButton.textContent = "Link Copied";
 				shareViewerButton.style = "color: rgba(255, 255, 255, 0.75)";
 				setTimeout(() => {
