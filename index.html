@@ -561,16 +561,6 @@
 			}
 		}
 		
-		textInput.addEventListener("input", function (event) {
-			textLines = event.target.value.split("\n"); // Assuming textLines is an array of lines from the input
-
-			if (textLines.length === 1 && textLines[0] === "") {
-				// If the input is empty or has only an empty line, clear textLines
-				textLines = [];
-			}
-
-			updateLoopPeriod();
-		});
 		
 		
 		delayInput.addEventListener("input", updateLoopPeriod);
@@ -590,6 +580,23 @@
 
 		function restartDisplay() {
 			currentIndex = 0;
+
+			// Cancel any ongoing animations
+			currentAnimationFrameIds.forEach(id => cancelAnimationFrame(id));
+			currentAnimationFrameIds = [];
+			currentTimeoutIds.forEach(id => clearTimeout(id));
+			currentTimeoutIds = [];
+			clearTimeout(intervalId);
+
+			// Reset text and opacity
+			textContainer.style.opacity = 1;
+			if (textLines.length > 0) {
+				textContainer.textContent = textLines[currentIndex];
+			} else {
+				textContainer.textContent = '';
+			}
+
+			// Start the display
 			updateDisplay();
 		}
 
@@ -638,6 +645,9 @@
 			randomizeButton.classList.toggle('active');
 			mode = mode === 'sequential' ? 'random' : 'sequential';
 		}
+		
+		let currentAnimationFrameIds = [];
+		let currentTimeoutIds = [];
 
 		function animate(duration, callback) {
 			let start;
@@ -652,16 +662,22 @@
 				textContainer.style.opacity = opacity;
 
 				if (elapsed < fadeDuration * 1000) {
-					requestAnimationFrame(step);
+					let id = requestAnimationFrame(step);
+					currentAnimationFrameIds.push(id);
 				} else if (elapsed < (fadeDuration + blankDuration) * 1000) {
-					setTimeout(() => requestAnimationFrame(step), blankDuration * 1000);
+					let id = setTimeout(() => {
+						let id2 = requestAnimationFrame(step);
+						currentAnimationFrameIds.push(id2);
+					}, blankDuration * 1000);
+					currentTimeoutIds.push(id);
 				} else {
 					callback();
 					fadeIn(fadeDuration);
 				}
 			}
 
-			requestAnimationFrame(step);
+			let id = requestAnimationFrame(step);
+			currentAnimationFrameIds.push(id);
 		}
 
 		function fadeIn(duration) {
@@ -673,14 +689,21 @@
 				opacity = elapsed / (duration * 1000);
 				textContainer.style.opacity = opacity;
 				if (elapsed < duration * 1000) {
-					requestAnimationFrame(step);
+					let id = requestAnimationFrame(step);
+					currentAnimationFrameIds.push(id);
 				}
 			}
-			requestAnimationFrame(step);
+			let id = requestAnimationFrame(step);
+			currentAnimationFrameIds.push(id);
 		}
 
-		textInput.addEventListener('input', () => {
-			textLines = textInput.value.split('\n');
+
+		textInput.addEventListener('input', function(event) {
+			textLines = event.target.value.split('\n');
+			if (textLines.length === 1 && textLines[0] === '') {
+				textLines = [];
+			}
+			updateLoopPeriod();
 			restartDisplay();
 		});
 
