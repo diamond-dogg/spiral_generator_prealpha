@@ -93,8 +93,9 @@ function generateURL(urlType) {
 		var url = "https://diamond-dogg.github.io/spiral_generator_prealpha/render.html?" + LZString.compressToEncodedURIComponent(params);
 		var copyURL = openRenderURL;
 	}
-	
-	try {
+
+	copyURL(url)
+	/*try {
 		fetch("https://api.wheel.to/v1/link/", {
 			method: "POST",
 			body: JSON.stringify({
@@ -117,6 +118,7 @@ function generateURL(urlType) {
 		console.log("Error when fetching from link shortener: " + err);
 		copyURL(url);
 	}
+ 	*/
 }
 
 
