@@ -95,6 +95,7 @@ function generateURL(urlType) {
 	}
 
 	copyURL(url)
+	// Commented out link shortener for now, until we can find a more permanent solution.
 	/*try {
 		fetch("https://api.wheel.to/v1/link/", {
 			method: "POST",
